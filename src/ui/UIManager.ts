@@ -26,6 +26,7 @@ export class UIManager {
   private endAmount!: HTMLSpanElement;
   private lightsEffect!: HTMLImageElement;
   private paypalCardContainer!: HTMLDivElement;
+  private countdownBox!: HTMLDivElement;
   private countdownTimer!: HTMLDivElement;
   private countdownInterval: number | null = null;
   private ctaBtn!: HTMLButtonElement;
@@ -151,20 +152,20 @@ export class UIManager {
     endContent.appendChild(this.paypalCardContainer);
 
     // Countdown Timer
-    const countdownBox = document.createElement('div');
-    countdownBox.className = 'countdown-container';
+    this.countdownBox = document.createElement('div');
+    this.countdownBox.className = 'countdown-container';
 
     this.countdownTimer = document.createElement('div');
     this.countdownTimer.className = 'countdown-timer';
     this.countdownTimer.textContent = '00:59';
-    countdownBox.appendChild(this.countdownTimer);
+    this.countdownBox.appendChild(this.countdownTimer);
 
     const countdownSub = document.createElement('div');
     countdownSub.className = 'countdown-text';
     countdownSub.textContent = 'Next payment in one minute';
-    countdownBox.appendChild(countdownSub);
+    this.countdownBox.appendChild(countdownSub);
 
-    endContent.appendChild(countdownBox);
+    endContent.appendChild(this.countdownBox);
 
     // Red/Yellow Pulsing CTA Button
     this.ctaBtn = document.createElement('button');
@@ -326,8 +327,8 @@ export class UIManager {
     this.endOverlay.classList.add('visible');
 
     if (isWin) {
-      this.endTitle.textContent = 'Great job!';
-      this.endSubtitle.textContent = 'Claim your cash on the app!';
+      this.endTitle.textContent = 'Congratulations!';
+      this.endSubtitle.textContent = 'Choose your reward!';
       this.ctaBtn.className = 'cta-button win';
     } else {
       this.endTitle.textContent = "You didn't make it!";
@@ -366,9 +367,14 @@ export class UIManager {
   private startCountdown(seconds: number): void {
     if (this.countdownInterval) {
       clearInterval(this.countdownInterval);
+      this.countdownInterval = null;
     }
 
     let remaining = seconds;
+    if (this.countdownBox) {
+      this.countdownBox.classList.remove('fade-out');
+    }
+
     const updateText = () => {
       const m = Math.floor(remaining / 60);
       const s = remaining % 60;
@@ -378,10 +384,20 @@ export class UIManager {
     updateText();
     this.countdownInterval = window.setInterval(() => {
       remaining--;
-      if (remaining < 0) {
-        remaining = 59;
+      if (remaining <= 0) {
+        remaining = 0;
+        updateText();
+        if (this.countdownInterval) {
+          clearInterval(this.countdownInterval);
+          this.countdownInterval = null;
+        }
+        // Smoothly fade out the timer and text
+        if (this.countdownBox) {
+          this.countdownBox.classList.add('fade-out');
+        }
+      } else {
+        updateText();
       }
-      updateText();
     }, 1000);
   }
 

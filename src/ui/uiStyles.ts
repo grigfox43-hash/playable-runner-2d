@@ -351,6 +351,13 @@ export function injectGameStyles(): void {
       text-align: center;
       color: #ffffff;
       z-index: 5;
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .countdown-container.fade-out {
+      opacity: 0 !important;
+      transform: translateY(-8px);
+      pointer-events: none;
     }
 
     .countdown-timer {
