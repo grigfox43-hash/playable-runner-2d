@@ -446,13 +446,13 @@ export function injectGameStyles(): void {
       }
       .game-footer {
         background-image: var(--footer-landscape);
-        height: clamp(55px, 14vh, 90px);
-        background-size: cover;
+        height: clamp(44px, 9vh, 58px);
+        background-size: auto 100%;
         background-position: left bottom;
       }
       .footer-cta {
-        padding: 8px 24px;
-        font-size: clamp(13px, 3.2vh, 18px);
+        padding: 6px 20px;
+        font-size: clamp(12px, 2.8vh, 16px);
         margin-right: 2%;
       }
     }
@@ -463,15 +463,16 @@ export function injectGameStyles(): void {
       bottom: 0;
       left: 0;
       width: 100%;
-      height: clamp(65px, 18.6vw, 110px);
+      height: clamp(50px, 8.5vh, 68px);
       background-image: var(--footer-portrait);
-      background-size: cover;
+      background-color: #8542f1;
+      background-size: auto 100%;
       background-repeat: no-repeat;
       background-position: left bottom;
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      padding-right: 4%;
+      padding-right: 3%;
       z-index: 100;
       box-sizing: border-box;
       pointer-events: auto;
@@ -480,15 +481,15 @@ export function injectGameStyles(): void {
     .footer-cta {
       background: linear-gradient(180deg, #ffc837 0%, #ff8008 100%);
       color: #ffffff;
-      border: 2.5px solid #ffe082;
-      border-radius: 12px;
-      padding: 10px 28px;
-      font-size: clamp(14px, 2.8vw, 20px);
+      border: 2px solid #ffe082;
+      border-radius: 10px;
+      padding: 7px 22px;
+      font-size: clamp(13px, 2.4vw, 17px);
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      box-shadow: 0 4px 0 #c25e00, 0 6px 12px rgba(0,0,0,0.4);
-      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 0 #c25e00, 0 6px 10px rgba(0,0,0,0.35);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
       cursor: pointer;
       animation: pulse-cta 1.2s ease-in-out infinite;
       transition: transform 0.1s ease;
