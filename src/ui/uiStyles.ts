@@ -334,12 +334,12 @@ export function injectGameStyles(): void {
       left: 42%;
       right: 5%;
       text-align: center;
-      font-size: clamp(38px, 6.5vw, 58px);
+      font-size: clamp(42px, 7.2vw, 64px);
       font-weight: 900;
       color: #ffffff;
-      -webkit-text-stroke: 1px #000000;
+      -webkit-text-stroke: 2px #000000;
       paint-order: stroke fill;
-      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.35));
+      filter: drop-shadow(0 3px 4px rgba(0,0,0,0.4));
       letter-spacing: -0.5px;
     }
 
@@ -424,7 +424,7 @@ export function injectGameStyles(): void {
       .paypal-card-amount {
         bottom: 25%;
         left: 42%;
-        font-size: clamp(26px, 5.5vh, 40px);
+        font-size: clamp(29px, 6.0vh, 44px);
       }
       .countdown-container {
         margin: 2px 0 6px 0;

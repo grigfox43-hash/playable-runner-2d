@@ -38,6 +38,7 @@ export class GameController {
   private tutorialEnemy: Enemy | null = null;
   private tutorialTriggered: boolean = false;
   private isTutorialPaused: boolean = false;
+  private isDecelerating: boolean = false;
 
   private readonly UNIT_DISTANCE: number = 700;
   private readonly TUTORIAL_DISTANCE_TRIGGER: number = 320;
@@ -188,6 +189,23 @@ export class GameController {
 
     if (this.state === GameState.RUNNING) {
       this.checkCollisions();
+    }
+
+    // Smooth deceleration after crossing the finish line
+    if (this.isDecelerating) {
+      this.currentSpeed *= 0.95;
+      if (this.currentSpeed < 20) {
+        this.currentSpeed = 0;
+        this.isDecelerating = false;
+        this.player.playAnimation(PlayerAnimState.IDLE);
+        for (const enemy of this.enemies) {
+          enemy.playIdle();
+        }
+
+        setTimeout(() => {
+          this.uiManager.showEndCard(true, this.currentScore);
+        }, 500);
+      }
     }
 
     this.confettiEmitter.update(deltaMs);
@@ -373,14 +391,8 @@ export class GameController {
   }
 
   private handleVictory(): void {
+    if (this.state === GameState.END_WIN) return;
     this.state = GameState.END_WIN;
-    this.currentSpeed = 0;
-
-    // Immediately switch player and all enemies to Idle before the packshot appears
-    this.player.playAnimation(PlayerAnimState.IDLE);
-    for (const enemy of this.enemies) {
-      enemy.playIdle();
-    }
 
     if (this.finishLine) {
       this.finishLine.breakTape();
@@ -389,9 +401,9 @@ export class GameController {
     this.confettiEmitter.burstVictory(720, 1280);
     SoundManager.getInstance().play('win');
 
-    setTimeout(() => {
-      this.uiManager.showEndCard(true, this.currentScore);
-    }, 1200);
+    // Smooth deceleration: keep running animation for a couple of steps
+    this.isDecelerating = true;
+    this.player.playAnimation(PlayerAnimState.RUN);
   }
 
   private handleGameOver(): void {
