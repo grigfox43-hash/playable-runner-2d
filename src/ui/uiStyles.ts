@@ -447,7 +447,7 @@ export function injectGameStyles(): void {
         box-shadow: 0 4px 0 #c25e00, 0 6px 10px rgba(0,0,0,0.5);
       }
       .game-footer {
-        height: clamp(48px, 12vh, 68px);
+        height: clamp(51px, 12.6vh, 72px);
         padding: 0 1.5% 0 0;
       }
       .footer-graphic {
