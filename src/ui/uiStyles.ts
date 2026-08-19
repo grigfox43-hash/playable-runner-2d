@@ -446,13 +446,13 @@ export function injectGameStyles(): void {
       }
       .game-footer {
         background-image: var(--footer-landscape);
-        height: clamp(44px, 9vh, 58px);
-        background-size: auto 100%;
-        background-position: left bottom;
+        height: clamp(52px, 12vh, 74px);
+        background-size: 100% 100%;
+        background-position: center bottom;
       }
       .footer-cta {
-        padding: 6px 20px;
-        font-size: clamp(12px, 2.8vh, 16px);
+        padding: 7px 22px;
+        font-size: clamp(13px, 3vh, 17px);
         margin-right: 2%;
       }
     }
@@ -463,16 +463,15 @@ export function injectGameStyles(): void {
       bottom: 0;
       left: 0;
       width: 100%;
-      height: clamp(50px, 8.5vh, 68px);
+      height: clamp(58px, 8.5vh, 80px);
       background-image: var(--footer-portrait);
-      background-color: #8542f1;
-      background-size: auto 100%;
+      background-size: 100% 100%;
       background-repeat: no-repeat;
-      background-position: left bottom;
+      background-position: center bottom;
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      padding-right: 3%;
+      padding-right: 3.5%;
       z-index: 100;
       box-sizing: border-box;
       pointer-events: auto;
@@ -481,19 +480,19 @@ export function injectGameStyles(): void {
     .footer-cta {
       background: linear-gradient(180deg, #ffc837 0%, #ff8008 100%);
       color: #ffffff;
-      border: 2px solid #ffe082;
-      border-radius: 10px;
-      padding: 7px 22px;
-      font-size: clamp(13px, 2.4vw, 17px);
+      border: 2.5px solid #ffe082;
+      border-radius: 12px;
+      padding: 9px 26px;
+      font-size: clamp(14px, 2.5vw, 19px);
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      box-shadow: 0 4px 0 #c25e00, 0 6px 10px rgba(0,0,0,0.35);
-      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 0 #c25e00, 0 6px 12px rgba(0,0,0,0.35);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
       cursor: pointer;
       animation: pulse-cta 1.2s ease-in-out infinite;
       transition: transform 0.1s ease;
-      margin-right: 2%;
+      margin-right: 1.5%;
     }
 
     .footer-cta:active {
