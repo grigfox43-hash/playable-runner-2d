@@ -447,12 +447,13 @@ export function injectGameStyles(): void {
         box-shadow: 0 4px 0 #c25e00, 0 6px 10px rgba(0,0,0,0.5);
       }
       .game-footer {
-        background-image: var(--footer-landscape);
-        background-color: #8542f1;
+        background-image: var(--footer-portrait);
+        background-color: #8b3ffc;
         background-size: auto 100%;
         background-repeat: no-repeat;
         background-position: left bottom;
         height: clamp(52px, 12vh, 74px);
+        border-top: 3px solid #ffffff;
         padding-right: 1.5%;
       }
       .footer-cta {
@@ -462,6 +463,7 @@ export function injectGameStyles(): void {
         border: 1.5px solid #ffe082;
         box-shadow: 0 2px 0 #c25e00, 0 4px 6px rgba(0,0,0,0.3);
         margin-right: 1%;
+        margin-top: 0;
       }
     }
 

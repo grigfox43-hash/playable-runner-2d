@@ -8,41 +8,48 @@ export interface LevelItemConfig {
 
 export const LEVEL_TRACK_DATA: LevelItemConfig[] = [
   { type: 'enemy', distance: 3, pauseForTutorial: true },
-  { type: 'collectible', distance: 4, yOffset: 50 },
-  { type: 'collectible', distance: 4.2, yOffset: 150 },
-  { type: 'collectible', distance: 4.4, yOffset: 250 },
-  { type: 'collectible', distance: 4.6, yOffset: 150 },
-  { type: 'collectible', distance: 4.8, yOffset: 50 },
-  { type: 'obstacle', distance: 5.6, warningLabel: true },
-  { type: 'collectible', distance: 6.4 },
-  { type: 'enemy', distance: 7 },
-  { type: 'collectible', distance: 7.6 },
-  { type: 'collectible', distance: 7.8, yOffset: 100 },
-  { type: 'collectible', distance: 8, yOffset: 200 },
-  { type: 'collectible', distance: 8.2, yOffset: 280 },
-  { type: 'collectible', distance: 8.4, yOffset: 200 },
-  { type: 'collectible', distance: 8.6, yOffset: 100 },
-  { type: 'obstacle', distance: 9, warningLabel: true },
-  { type: 'collectible', distance: 9.6 },
-  { type: 'enemy', distance: 10 },
-  { type: 'collectible', distance: 10.6 },
-  { type: 'collectible', distance: 11, yOffset: 80 },
-  { type: 'collectible', distance: 11.2, yOffset: 180 },
-  { type: 'collectible', distance: 11.4, yOffset: 80 },
-  { type: 'obstacle', distance: 12 },
-  { type: 'enemy', distance: 12.6 },
-  { type: 'collectible', distance: 13 },
-  { type: 'collectible', distance: 13.2, yOffset: 100 },
-  { type: 'collectible', distance: 13.4, yOffset: 200 },
-  { type: 'collectible', distance: 13.6, yOffset: 100 },
-  { type: 'obstacle', distance: 14, warningLabel: true },
-  { type: 'collectible', distance: 14.5 },
-  { type: 'enemy', distance: 15 },
-  { type: 'collectible', distance: 15.4, yOffset: 80 },
-  { type: 'collectible', distance: 15.6, yOffset: 180 },
-  { type: 'collectible', distance: 15.8, yOffset: 260 },
-  { type: 'collectible', distance: 16, yOffset: 180 },
+
+  // Arc 1 - Tutorial jump arc (higher upward arc, wider spacing)
+  { type: 'collectible', distance: 3.9, yOffset: 60 },
+  { type: 'collectible', distance: 4.2, yOffset: 180 },
+  { type: 'collectible', distance: 4.5, yOffset: 300 },
+  { type: 'collectible', distance: 4.8, yOffset: 180 },
+  { type: 'collectible', distance: 5.1, yOffset: 60 },
+
+  { type: 'obstacle', distance: 5.9, warningLabel: true },
+  { type: 'collectible', distance: 6.6, yOffset: 40 },
+
+  { type: 'enemy', distance: 7.3 },
+
+  // Arc 2 - High soaring jump arc
+  { type: 'collectible', distance: 8.0, yOffset: 70 },
+  { type: 'collectible', distance: 8.3, yOffset: 200 },
+  { type: 'collectible', distance: 8.6, yOffset: 320 },
+  { type: 'collectible', distance: 8.9, yOffset: 200 },
+  { type: 'collectible', distance: 9.2, yOffset: 70 },
+
+  { type: 'obstacle', distance: 10.0, warningLabel: true },
+  { type: 'collectible', distance: 10.7, yOffset: 40 },
+
+  { type: 'enemy', distance: 11.4 },
+
+  // Arc 3 - Medium jump arc
+  { type: 'collectible', distance: 12.0, yOffset: 80 },
+  { type: 'collectible', distance: 12.3, yOffset: 240 },
+  { type: 'collectible', distance: 12.6, yOffset: 310 },
+  { type: 'collectible', distance: 12.9, yOffset: 140 },
+
+  { type: 'obstacle', distance: 13.6, warningLabel: true },
+
+  { type: 'enemy', distance: 14.3 },
+
+  // Arc 4 - Grand finale high arc
+  { type: 'collectible', distance: 15.0, yOffset: 80 },
+  { type: 'collectible', distance: 15.3, yOffset: 210 },
+  { type: 'collectible', distance: 15.6, yOffset: 330 },
+  { type: 'collectible', distance: 15.9, yOffset: 210 },
   { type: 'collectible', distance: 16.2, yOffset: 80 },
-  { type: 'obstacle', distance: 16.5 },
-  { type: 'finish', distance: 18 }
+
+  { type: 'obstacle', distance: 17.0 },
+  { type: 'finish', distance: 18.5 }
 ];
