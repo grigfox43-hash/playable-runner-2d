@@ -169,7 +169,9 @@ export function injectGameStyles(): void {
       font-size: clamp(24px, 5vw, 36px);
       color: #ffffff;
       font-weight: 900;
-      text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0 4px 8px rgba(0,0,0,0.6);
+      -webkit-text-stroke: 2px #000000;
+      paint-order: stroke fill;
+      filter: drop-shadow(0 3px 5px rgba(0,0,0,0.6));
       margin-bottom: 20px;
     }
 
@@ -446,12 +448,11 @@ export function injectGameStyles(): void {
       }
       .game-footer {
         background-image: var(--footer-landscape);
-        background-color: #8542f1;
-        background-size: auto 100%;
+        background-size: 100% 100%;
         background-repeat: no-repeat;
-        background-position: left bottom;
-        height: clamp(65px, 14.5vh, 92px);
-        border-top: 3px solid #ffffff;
+        background-position: center bottom;
+        height: clamp(52px, 12vh, 74px);
+        padding-right: 2%;
       }
       .footer-cta {
         padding: 5px 14px;
@@ -459,7 +460,7 @@ export function injectGameStyles(): void {
         border-radius: 8px;
         border: 1.5px solid #ffe082;
         box-shadow: 0 2px 0 #c25e00, 0 4px 6px rgba(0,0,0,0.3);
-        margin-right: 3%;
+        margin-right: 1%;
       }
     }
 
@@ -469,7 +470,7 @@ export function injectGameStyles(): void {
       bottom: 0;
       left: 0;
       width: 100%;
-      height: clamp(68px, 9.5vh, 92px);
+      height: clamp(58px, 8.5vh, 80px);
       background-image: var(--footer-portrait);
       background-size: 100% 100%;
       background-repeat: no-repeat;
@@ -477,7 +478,7 @@ export function injectGameStyles(): void {
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      padding-right: 3.5%;
+      padding-right: 3%;
       z-index: 100;
       box-sizing: border-box;
       pointer-events: auto;
@@ -498,7 +499,8 @@ export function injectGameStyles(): void {
       cursor: pointer;
       animation: pulse-cta 1.2s ease-in-out infinite;
       transition: transform 0.1s ease;
-      margin-right: 2%;
+      margin-right: 1.5%;
+      margin-top: 6px;
     }
 
     .footer-cta:active {
