@@ -1,362 +1,355 @@
-import { Container, Graphics, Text, TextStyle } from 'pixi.js';
-import { LAYER_Z_INDEX, HP_CONFIG } from '../config/constants';
-import { TutorialHand } from './TutorialHand';
+import { injectGameStyles } from './uiStyles';
+import { ASSET_IMAGES } from '../assets/assetData';
+import { HP_CONFIG } from '../config/constants';
 import { MraidAdapter } from '../core/MraidAdapter';
 import { SoundManager } from '../core/SoundManager';
 
-export class UIManager extends Container {
-  private hudContainer!: Container;
-  private hpContainer!: Container;
-  private hpHearts: Graphics[] = [];
-  private scoreContainer!: Container;
-  private scoreText!: Text;
+export class UIManager {
+  private uiContainer!: HTMLDivElement;
+  private hpDisplay!: HTMLDivElement;
+  private hearts: HTMLSpanElement[] = [];
 
-  public tutorialHand!: TutorialHand;
-  private endCardContainer!: Container;
-  private endCardBg!: Graphics;
-  private cardModal!: Container;
-  private ctaButton!: Container;
-  private ctaBtnBg!: Graphics;
-  private ctaText!: Text;
-  private endAmountText!: Text;
+  private scoreContainer!: HTMLDivElement;
+  private scoreDisplay!: HTMLSpanElement;
 
-  // Bottom Footer
-  private footerContainer!: Container;
-  private footerBg!: Graphics;
-  private footerCtaBtn!: Container;
+  private tutorialOverlay!: HTMLDivElement;
+  private tutorialText!: HTMLDivElement;
+
+  private endOverlay!: HTMLDivElement;
+  private endTitle!: HTMLHeadingElement;
+  private endSubtitle!: HTMLDivElement;
+  private endAmount!: HTMLSpanElement;
+  private lightsEffect!: HTMLImageElement;
+  private paypalCardContainer!: HTMLDivElement;
+  private countdownTimer!: HTMLDivElement;
+  private countdownInterval: number | null = null;
+
+  private gameFooter!: HTMLDivElement;
+  private adapter: MraidAdapter;
 
   private currentScore: number = 0;
   private displayScore: number = 0;
-  private currentHp: number = HP_CONFIG.MAX_HP;
-
-  private adapter: MraidAdapter;
-  private ctaPulseTime: number = 0;
-  public isEndCardVisible: boolean = false;
+  private balanceAnimationId: number | null = null;
+  private collectiblesCount: number = 0;
 
   constructor(adapter: MraidAdapter) {
-    super();
     this.adapter = adapter;
-    this.zIndex = LAYER_Z_INDEX.OVERLAY;
-    this.createHUD();
-    this.createFooter();
-    this.createTutorial();
-    this.createEndCard();
+    injectGameStyles();
+    this.createUI();
   }
 
-  private createHUD(): void {
-    this.hudContainer = new Container();
-    this.addChild(this.hudContainer);
+  private createUI(): void {
+    this.uiContainer = document.getElementById('ui-container') as HTMLDivElement || document.createElement('div');
+    this.uiContainer.id = 'ui-container';
+    document.body.appendChild(this.uiContainer);
 
-    // HP Hearts Container
-    this.hpContainer = new Container();
-    this.hpContainer.x = 35;
-    this.hpContainer.y = 45;
+    // 1. Header
+    const header = document.createElement('div');
+    header.className = 'game-header';
 
-    for (let i = 0; i < HP_CONFIG.MAX_HP; i++) {
-      const heart = new Graphics();
-      this.drawHeart(heart, true);
-      heart.x = i * 44;
-      heart.y = 0;
-      this.hpContainer.addChild(heart);
-      this.hpHearts.push(heart);
-    }
-    this.hudContainer.addChild(this.hpContainer);
+    // HP Hearts
+    this.hpDisplay = document.createElement('div');
+    this.hpDisplay.className = 'hp-container';
+    this.renderHearts(HP_CONFIG.MAX_HP);
+    header.appendChild(this.hpDisplay);
 
-    // Score / Money Pill Badge
-    this.scoreContainer = new Container();
-    this.scoreContainer.x = 720 - 210;
-    this.scoreContainer.y = 40;
+    // PayPal Top Counter
+    this.scoreContainer = document.createElement('div');
+    this.scoreContainer.className = 'paypal-counter';
 
-    const pillBg = new Graphics();
-    pillBg.roundRect(0, 0, 180, 52, 26);
-    pillBg.fill({ color: 0x111111, alpha: 0.85 });
-    pillBg.stroke({ color: 0x22c55e, width: 2.5 });
-    this.scoreContainer.addChild(pillBg);
+    const counterImg = document.createElement('img');
+    counterImg.src = ASSET_IMAGES.paypalCounter;
+    counterImg.alt = 'PayPal Balance';
+    counterImg.className = 'paypal-counter-image';
+    this.scoreContainer.appendChild(counterImg);
 
-    // Dollar symbol graphic
-    const dollarCircle = new Graphics();
-    dollarCircle.circle(26, 26, 18);
-    dollarCircle.fill({ color: 0x22c55e });
-    this.scoreContainer.addChild(dollarCircle);
+    this.scoreDisplay = document.createElement('span');
+    this.scoreDisplay.className = 'paypal-counter-amount';
+    this.scoreDisplay.textContent = '$0';
+    this.scoreContainer.appendChild(this.scoreDisplay);
 
-    const dollarSymStyle = new TextStyle({
-      fontFamily: 'Arial, sans-serif',
-      fontSize: 22,
-      fontWeight: 'bold',
-      fill: '#ffffff',
-      align: 'center'
-    });
-    const dollarSym = new Text({ text: '$', style: dollarSymStyle });
-    dollarSym.anchor.set(0.5);
-    dollarSym.x = 26;
-    dollarSym.y = 26;
-    this.scoreContainer.addChild(dollarSym);
+    header.appendChild(this.scoreContainer);
+    this.uiContainer.appendChild(header);
 
-    // Score Amount Text
-    const scoreStyle = new TextStyle({
-      fontFamily: 'Arial, sans-serif',
-      fontSize: 24,
-      fontWeight: 'bold',
-      fill: '#ffffff',
-      align: 'left'
-    });
-    this.scoreText = new Text({ text: '$0.00', style: scoreStyle });
-    this.scoreText.anchor.set(0, 0.5);
-    this.scoreText.x = 56;
-    this.scoreText.y = 26;
-    this.scoreContainer.addChild(this.scoreText);
+    // 2. Tutorial Overlay
+    this.tutorialOverlay = document.createElement('div');
+    this.tutorialOverlay.className = 'tutorial-overlay';
 
-    this.hudContainer.addChild(this.scoreContainer);
-  }
+    this.tutorialText = document.createElement('div');
+    this.tutorialText.className = 'tutorial-text';
+    this.tutorialText.textContent = 'SWIPE UP TO JUMP';
+    this.tutorialOverlay.appendChild(this.tutorialText);
 
-  private createFooter(): void {
-    this.footerContainer = new Container();
-    this.footerContainer.y = 1170; // Bottom bar area
+    const tutorialHand = document.createElement('div');
+    tutorialHand.className = 'tutorial-hand';
+    const handImg = document.createElement('img');
+    handImg.src = ASSET_IMAGES.tutorialHandIcon;
+    handImg.alt = 'swipe';
+    handImg.className = 'hand-icon';
+    tutorialHand.appendChild(handImg);
+    this.tutorialOverlay.appendChild(tutorialHand);
 
-    this.footerBg = new Graphics();
-    this.footerBg.rect(-3000, 0, 7000, 110);
-    this.footerBg.fill({ color: 0x7c3aed, alpha: 0.95 });
-    this.footerContainer.addChild(this.footerBg);
+    this.uiContainer.appendChild(this.tutorialOverlay);
 
-    // Footer Logo Text
-    const logoStyle = new TextStyle({
-      fontFamily: 'Arial, sans-serif',
-      fontSize: 42,
-      fontWeight: 'bold',
-      fill: '#ffffff',
-      fontStyle: 'italic'
-    });
-    const logoText = new Text({ text: 'Playoff', style: logoStyle });
-    logoText.anchor.set(0, 0.5);
-    logoText.x = 40;
-    logoText.y = 55;
-    this.footerContainer.addChild(logoText);
+    // 3. End Screen / Packshot Overlay
+    this.endOverlay = document.createElement('div');
+    this.endOverlay.className = 'end-overlay';
 
-    // Footer CTA Button
-    this.footerCtaBtn = new Container();
-    this.footerCtaBtn.x = 720 - 150;
-    this.footerCtaBtn.y = 55;
-    this.footerCtaBtn.eventMode = 'static';
-    this.footerCtaBtn.cursor = 'pointer';
+    // Rotating Sunburst Lights
+    this.lightsEffect = document.createElement('img');
+    this.lightsEffect.src = ASSET_IMAGES.lights;
+    this.lightsEffect.alt = '';
+    this.lightsEffect.className = 'lights-effect';
+    this.endOverlay.appendChild(this.lightsEffect);
 
-    const btnBg = new Graphics();
-    btnBg.roundRect(-100, -28, 200, 56, 28);
-    btnBg.fill({ color: 0x22c55e });
-    btnBg.stroke({ color: 0xffffff, width: 2 });
-    this.footerCtaBtn.addChild(btnBg);
+    // End Content Card
+    const endContent = document.createElement('div');
+    endContent.className = 'end-content';
 
-    const btnStyle = new TextStyle({
-      fontFamily: 'Arial, sans-serif',
-      fontSize: 22,
-      fontWeight: 'bold',
-      fill: '#ffffff'
-    });
-    const btnText = new Text({ text: 'DOWNLOAD', style: btnStyle });
-    btnText.anchor.set(0.5);
-    this.footerCtaBtn.addChild(btnText);
+    this.endTitle = document.createElement('h1');
+    this.endTitle.className = 'end-title';
+    this.endTitle.textContent = 'Great job!';
+    endContent.appendChild(this.endTitle);
 
-    this.footerCtaBtn.on('pointertap', () => {
-      this.adapter.openStore();
-    });
+    this.endSubtitle = document.createElement('div');
+    this.endSubtitle.className = 'end-subtitle';
+    this.endSubtitle.textContent = 'Claim your cash on the app!';
+    endContent.appendChild(this.endSubtitle);
 
-    this.footerContainer.addChild(this.footerCtaBtn);
-    this.addChild(this.footerContainer);
-  }
+    // Big PayPal Card
+    this.paypalCardContainer = document.createElement('div');
+    this.paypalCardContainer.className = 'paypal-card-container';
 
-  private drawHeart(g: Graphics, filled: boolean): void {
-    g.clear();
-    const color = filled ? 0xef4444 : 0x4b5563;
-    const alpha = filled ? 1 : 0.6;
+    const cardImg = document.createElement('img');
+    cardImg.src = ASSET_IMAGES.paypalCard;
+    cardImg.alt = 'PayPal';
+    cardImg.className = 'paypal-card-image';
+    this.paypalCardContainer.appendChild(cardImg);
 
-    g.moveTo(0, 0);
-    g.bezierCurveTo(-14, -14, -28, 7, 0, 24);
-    g.bezierCurveTo(28, 7, 14, -14, 0, 0);
-    g.fill({ color, alpha });
+    this.endAmount = document.createElement('span');
+    this.endAmount.className = 'paypal-card-amount';
+    this.endAmount.textContent = '$0.00';
+    this.paypalCardContainer.appendChild(this.endAmount);
 
-    if (filled) {
-      g.moveTo(-4, -4);
-      g.bezierCurveTo(-8, -10, -14, -2, -6, 4);
-      g.fill({ color: 0xffffff, alpha: 0.5 });
-    }
-  }
+    endContent.appendChild(this.paypalCardContainer);
 
-  private createTutorial(): void {
-    this.tutorialHand = new TutorialHand();
-    this.addChild(this.tutorialHand);
-  }
+    // Countdown Timer
+    const countdownBox = document.createElement('div');
+    countdownBox.className = 'countdown-container';
 
-  private createEndCard(): void {
-    this.endCardContainer = new Container();
-    this.endCardContainer.alpha = 0;
-    this.endCardContainer.visible = false;
-    this.addChild(this.endCardContainer);
+    this.countdownTimer = document.createElement('div');
+    this.countdownTimer.className = 'countdown-timer';
+    this.countdownTimer.textContent = '00:59';
+    countdownBox.appendChild(this.countdownTimer);
 
-    this.endCardBg = new Graphics();
-    this.endCardBg.rect(-3000, 0, 7000, 1280);
-    this.endCardBg.fill({ color: 0x000000, alpha: 0.75 });
-    this.endCardContainer.addChild(this.endCardBg);
+    const countdownSub = document.createElement('div');
+    countdownSub.className = 'countdown-text';
+    countdownSub.textContent = 'Next payment in one minute';
+    countdownBox.appendChild(countdownSub);
 
-    this.cardModal = new Container();
-    this.cardModal.x = 360;
-    this.cardModal.y = 560;
+    endContent.appendChild(countdownBox);
 
-    const modalBg = new Graphics();
-    modalBg.roundRect(-260, -260, 520, 520, 36);
-    modalBg.fill({ color: 0x18181b, alpha: 0.96 });
-    modalBg.stroke({ color: 0xeab308, width: 5 });
-    this.cardModal.addChild(modalBg);
-
-    // Star icon
-    const starIcon = new Graphics();
-    starIcon.circle(0, -190, 50);
-    starIcon.fill({ color: 0xfacc15 });
-    starIcon.stroke({ color: 0xffffff, width: 3.5 });
-    this.cardModal.addChild(starIcon);
-
-    const starSymStyle = new TextStyle({
-      fontFamily: 'Arial, sans-serif',
-      fontSize: 46,
-      fontWeight: 'bold',
-      fill: '#ffffff',
-      align: 'center'
-    });
-    const starSym = new Text({ text: '★', style: starSymStyle });
-    starSym.anchor.set(0.5);
-    starSym.x = 0;
-    starSym.y = -190;
-    this.cardModal.addChild(starSym);
-
-    // Title
-    const titleStyle = new TextStyle({
-      fontFamily: 'Arial, sans-serif',
-      fontSize: 32,
-      fontWeight: 'bold',
-      fill: '#fde047',
-      stroke: { color: '#000000', width: 4 },
-      align: 'center'
-    });
-    const titleText = new Text({ text: 'LEVEL COMPLETED!', style: titleStyle });
-    titleText.anchor.set(0.5);
-    titleText.y = -105;
-    this.cardModal.addChild(titleText);
-
-    // Subtitle
-    const subStyle = new TextStyle({
-      fontFamily: 'Arial, sans-serif',
-      fontSize: 18,
-      fontWeight: 'bold',
-      fill: '#9ca3af',
-      align: 'center'
-    });
-    const subText = new Text({ text: 'TOTAL CASH EARNED', style: subStyle });
-    subText.anchor.set(0.5);
-    subText.y = -55;
-    this.cardModal.addChild(subText);
-
-    // Amount Text
-    const amountStyle = new TextStyle({
-      fontFamily: 'Arial, sans-serif',
-      fontSize: 50,
-      fontWeight: 'bold',
-      fill: '#4ade80',
-      stroke: { color: '#064e3b', width: 6 },
-      dropShadow: {
-        color: '#000000',
-        blur: 8,
-        distance: 4,
-        alpha: 0.7
-      },
-      align: 'center'
-    });
-    this.endAmountText = new Text({ text: '$260.00', style: amountStyle });
-    this.endAmountText.anchor.set(0.5);
-    this.endAmountText.y = 15;
-    this.cardModal.addChild(this.endAmountText);
-
-    // CTA Button
-    this.ctaButton = new Container();
-    this.ctaButton.y = 160;
-    this.ctaButton.eventMode = 'static';
-    this.ctaButton.cursor = 'pointer';
-
-    this.ctaBtnBg = new Graphics();
-    this.ctaBtnBg.roundRect(-190, -38, 380, 76, 38);
-    this.ctaBtnBg.fill({ color: 0x22c55e });
-    this.ctaBtnBg.stroke({ color: 0x86efac, width: 3 });
-    this.ctaButton.addChild(this.ctaBtnBg);
-
-    const ctaStyle = new TextStyle({
-      fontFamily: 'Arial, sans-serif',
-      fontSize: 26,
-      fontWeight: 'bold',
-      fill: '#ffffff',
-      stroke: { color: '#14532d', width: 3 },
-      align: 'center'
-    });
-    this.ctaText = new Text({ text: 'CLAIM REWARD', style: ctaStyle });
-    this.ctaText.anchor.set(0.5);
-    this.ctaButton.addChild(this.ctaText);
-
-    this.ctaButton.on('pointertap', () => {
+    // Red Pulsing CTA Button
+    const ctaBtn = document.createElement('button');
+    ctaBtn.className = 'cta-button';
+    ctaBtn.textContent = 'INSTALL AND EARN';
+    ctaBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
       SoundManager.getInstance().play('win');
       this.adapter.openStore();
     });
+    endContent.appendChild(ctaBtn);
 
-    this.cardModal.addChild(this.ctaButton);
-    this.endCardContainer.addChild(this.cardModal);
+    this.endOverlay.appendChild(endContent);
+    this.uiContainer.appendChild(this.endOverlay);
+
+    // 4. Footer
+    this.gameFooter = document.createElement('div');
+    this.gameFooter.className = 'game-footer';
+
+    const footerCta = document.createElement('button');
+    footerCta.className = 'footer-cta';
+    footerCta.textContent = 'INSTALL AND EARN';
+    footerCta.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.adapter.openStore();
+    });
+    this.gameFooter.appendChild(footerCta);
+
+    this.uiContainer.appendChild(this.gameFooter);
+  }
+
+  private renderHearts(hp: number): void {
+    this.hpDisplay.innerHTML = '';
+    this.hearts = [];
+
+    for (let i = 0; i < HP_CONFIG.MAX_HP; i++) {
+      const heart = document.createElement('span');
+      heart.className = i < hp ? 'heart' : 'heart empty';
+      heart.textContent = '❤️';
+      this.hpDisplay.appendChild(heart);
+      this.hearts.push(heart);
+    }
+  }
+
+  public setHp(hp: number): void {
+    this.renderHearts(hp);
+  }
+
+  public showTutorial(prompt: string = 'SWIPE UP TO JUMP'): void {
+    this.tutorialText.textContent = prompt;
+    this.tutorialOverlay.classList.remove('hidden');
+  }
+
+  public hideTutorial(): void {
+    this.tutorialOverlay.classList.add('hidden');
+  }
+
+  public triggerCollect(fromX: number, fromY: number, type: 'dollar' | 'paypalCard', newScore: number): void {
+    this.animateFlyingCollectible(fromX, fromY, type);
+    this.updateScore(newScore);
+
+    this.collectiblesCount++;
+    if (this.collectiblesCount % 3 === 0) {
+      this.showPraisePopup();
+    }
+  }
+
+  private animateFlyingCollectible(startX: number, startY: number, type: 'dollar' | 'paypalCard'): void {
+    const rect = this.scoreContainer.getBoundingClientRect();
+    const targetX = rect.left + rect.width / 2;
+    const targetY = rect.top + rect.height / 2;
+
+    const flyEl = document.createElement('div');
+    flyEl.className = 'flying-collectible';
+    const img = document.createElement('img');
+    img.src = type === 'dollar' ? ASSET_IMAGES.flyingDollar : ASSET_IMAGES.flyingCard;
+    flyEl.appendChild(img);
+
+    flyEl.style.left = `${startX}px`;
+    flyEl.style.top = `${startY}px`;
+
+    const animName = `fly-${Date.now()}-${Math.floor(Math.random()*1000)}`;
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `
+      @keyframes ${animName} {
+        0% { left: ${startX}px; top: ${startY}px; opacity: 1; transform: scale(1); }
+        100% { left: ${targetX}px; top: ${targetY}px; opacity: 0.8; transform: scale(0.5); }
+      }
+    `;
+    document.head.appendChild(styleEl);
+
+    flyEl.style.animation = `${animName} 0.4s ease-in forwards`;
+    document.body.appendChild(flyEl);
+
+    flyEl.addEventListener('animationend', () => {
+      this.scoreContainer.classList.remove('pulse');
+      void this.scoreContainer.offsetWidth; // trigger reflow
+      this.scoreContainer.classList.add('pulse');
+
+      flyEl.remove();
+      styleEl.remove();
+    });
+  }
+
+  public showPraisePopup(): void {
+    const praiseList = ['AWESOME!', 'NICE!', 'GREAT!', 'AMAZING!', 'PERFECT!'];
+    const text = praiseList[Math.floor(Math.random() * praiseList.length)];
+
+    const popup = document.createElement('div');
+    popup.className = 'praise-popup';
+    popup.textContent = text;
+
+    const screenW = window.innerWidth;
+    const screenH = window.innerHeight;
+    const offsetX = (Math.random() - 0.5) * 60;
+    const offsetY = (Math.random() - 0.5) * 40;
+
+    popup.style.left = `${screenW / 2 + offsetX}px`;
+    popup.style.top = `${screenH * 0.35 + offsetY}px`;
+    popup.style.transform = 'translate(-50%, -50%)';
+
+    document.body.appendChild(popup);
+    popup.addEventListener('animationend', () => {
+      popup.remove();
+    });
   }
 
   public updateScore(amount: number): void {
     this.currentScore = amount;
-  }
-
-  public setHp(hp: number): void {
-    this.currentHp = Math.max(0, hp);
-    for (let i = 0; i < this.hpHearts.length; i++) {
-      this.drawHeart(this.hpHearts[i], i < this.currentHp);
-    }
+    this.scoreDisplay.textContent = `$${Math.floor(amount)}`;
   }
 
   public showEndCard(isWin: boolean, finalScore: number): void {
-    this.isEndCardVisible = true;
-    this.endCardContainer.visible = true;
-    this.endCardContainer.alpha = 1;
-    this.endAmountText.text = `$${finalScore.toFixed(2)}`;
+    this.endOverlay.classList.add('visible');
 
-    if (!isWin) {
-      this.ctaText.text = 'TRY AGAIN';
+    if (isWin) {
+      this.endTitle.textContent = 'Great job!';
+      this.endSubtitle.textContent = 'Claim your cash on the app!';
+    } else {
+      this.endTitle.textContent = "You didn't make it!";
+      this.endSubtitle.textContent = 'Try again on the app!';
     }
+
+    // Smooth count-up on PayPal card
+    this.animateCardBalance(finalScore);
+
+    // Start Countdown 00:59
+    this.startCountdown(59);
+  }
+
+  private animateCardBalance(target: number): void {
+    if (this.balanceAnimationId) {
+      cancelAnimationFrame(this.balanceAnimationId);
+    }
+
+    const startTime = performance.now();
+    const duration = 1000;
+
+    const step = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const val = target * ease;
+
+      this.endAmount.textContent = `$${val.toFixed(2)}`;
+
+      if (progress < 1) {
+        this.balanceAnimationId = requestAnimationFrame(step);
+      }
+    };
+
+    this.balanceAnimationId = requestAnimationFrame(step);
+  }
+
+  private startCountdown(seconds: number): void {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
+
+    let remaining = seconds;
+    const updateText = () => {
+      const m = Math.floor(remaining / 60);
+      const s = remaining % 60;
+      this.countdownTimer.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    };
+
+    updateText();
+    this.countdownInterval = window.setInterval(() => {
+      remaining--;
+      if (remaining < 0) {
+        remaining = 59;
+      }
+      updateText();
+    }, 1000);
   }
 
   public resize(windowWidth: number, windowHeight: number, scale: number, offsetX: number): void {
-    // Left edge in local stage coordinates
-    const localLeft = -offsetX / scale;
-    // Right edge in local stage coordinates
-    const localRight = (windowWidth - offsetX) / scale;
-
-    // Anchor HUD elements
-    this.hpContainer.x = localLeft + 35;
-    this.scoreContainer.x = localRight - 215;
-
-    // Footer width and position
-    this.footerCtaBtn.x = localRight - 150;
-
-    // End card modal center
-    this.cardModal.x = (localLeft + localRight) / 2;
+    // Dynamic styles already adapt via clamp and flexbox
   }
 
   public update(deltaMs: number): void {
-    this.tutorialHand.update(deltaMs);
-
-    if (this.displayScore < this.currentScore) {
-      this.displayScore = Math.min(this.currentScore, this.displayScore + deltaMs * 0.15);
-      this.scoreText.text = `$${this.displayScore.toFixed(2)}`;
-    }
-
-    if (this.isEndCardVisible) {
-      this.ctaPulseTime += deltaMs * 0.005;
-      const pulse = 1 + Math.sin(this.ctaPulseTime * 2) * 0.06;
-      this.ctaButton.scale.set(pulse);
-    }
+    // Handled via CSS keyframes
   }
 }

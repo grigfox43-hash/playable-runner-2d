@@ -1,4 +1,4 @@
-import { Container, Application, Rectangle } from 'pixi.js';
+import { Container, Application, Rectangle, Point } from 'pixi.js';
 import { GameState, PlayerAnimState, SPEED_CONFIG, HP_CONFIG, SCORE_CONFIG } from '../config/constants';
 import { LEVEL_TRACK_DATA, LevelItemConfig } from '../config/levelConfig';
 import { ParallaxBg } from '../background/ParallaxBg';
@@ -39,7 +39,7 @@ export class GameController {
   private isTutorialPaused: boolean = false;
 
   private isDecelerating: boolean = false;
-  private readonly UNIT_DISTANCE: number = 700; // pixels per distance unit
+  private readonly UNIT_DISTANCE: number = 700;
   private readonly TUTORIAL_DISTANCE_TRIGGER: number = 280;
 
   constructor(app: Application) {
@@ -58,7 +58,6 @@ export class GameController {
     this.worldContainer.addChild(this.parallaxBg);
     this.worldContainer.addChild(this.entityContainer);
     this.worldContainer.addChild(this.confettiEmitter);
-    this.worldContainer.addChild(this.uiManager);
 
     this.app.stage.addChild(this.worldContainer);
   }
@@ -70,14 +69,11 @@ export class GameController {
 
     this.entityContainer.addChild(this.player);
 
-    // Initial state
     this.state = GameState.INTRO;
     this.player.playAnimation(PlayerAnimState.RUN);
     this.uiManager.setHp(this.currentHp);
     this.uiManager.updateScore(this.currentScore);
-
-    // Show initial tutorial guide
-    this.uiManager.tutorialHand.show(this.player.x + 80, this.player.y - 120);
+    this.uiManager.showTutorial('TAP TO START');
   }
 
   public handleJumpInput(): void {
@@ -86,12 +82,12 @@ export class GameController {
     if (this.isTutorialPaused) {
       this.isTutorialPaused = false;
       this.currentSpeed = SPEED_CONFIG.BASE_SPEED;
-      this.uiManager.tutorialHand.hide();
+      this.uiManager.hideTutorial();
     }
 
     if (this.state === GameState.INTRO) {
       this.state = GameState.RUNNING;
-      this.uiManager.tutorialHand.hide();
+      this.uiManager.hideTutorial();
     }
 
     this.player.jump();
@@ -100,20 +96,14 @@ export class GameController {
   public update(deltaMs: number): void {
     if (this.isTutorialPaused) {
       this.player.update(deltaMs);
-      this.uiManager.update(deltaMs);
       return;
     }
 
     const moveStep = (this.currentSpeed * deltaMs) / 1000;
     this.distanceTraveled += moveStep;
 
-    // Check spawn queue
     this.checkLevelSpawns();
-
-    // Update parallax
     this.parallaxBg.update(moveStep);
-
-    // Update player
     this.player.update(deltaMs);
 
     // Update enemies
@@ -122,18 +112,16 @@ export class GameController {
       enemy.speed = this.currentSpeed;
       enemy.update(deltaMs);
 
-      // Check tutorial trigger distance
       if (enemy.isTutorialEnemy && !this.tutorialTriggered) {
         const dist = enemy.x - this.player.x;
         if (dist > 0 && dist < this.TUTORIAL_DISTANCE_TRIGGER) {
           this.tutorialTriggered = true;
           this.isTutorialPaused = true;
-          this.uiManager.tutorialHand.show(this.player.x + 50, this.player.y - 140);
+          this.uiManager.showTutorial('SWIPE UP TO JUMP');
         }
       }
 
-      // Offscreen removal
-      if (enemy.x < -300) {
+      if (enemy.x < -400) {
         this.entityContainer.removeChild(enemy);
         enemy.destroy();
         this.enemies.splice(i, 1);
@@ -146,7 +134,7 @@ export class GameController {
       obs.speed = this.currentSpeed;
       obs.update(deltaMs);
 
-      if (obs.x < -300) {
+      if (obs.x < -400) {
         this.entityContainer.removeChild(obs);
         obs.destroy();
         this.obstacles.splice(i, 1);
@@ -159,7 +147,7 @@ export class GameController {
       col.speed = this.currentSpeed;
       const finished = col.update(deltaMs);
 
-      if (finished || col.x < -300) {
+      if (finished || col.x < -400) {
         this.entityContainer.removeChild(col);
         col.destroy();
         this.collectibles.splice(i, 1);
@@ -172,7 +160,6 @@ export class GameController {
       this.finishLine.update(deltaMs, this.player.x);
     }
 
-    // Check collisions
     if (this.state === GameState.RUNNING || this.state === GameState.INTRO) {
       this.checkCollisions();
     }
@@ -186,18 +173,13 @@ export class GameController {
       }
     }
 
-    // FX and UI
     this.confettiEmitter.update(deltaMs);
-    this.uiManager.update(deltaMs);
   }
 
   private checkLevelSpawns(): void {
-    const currentDistanceUnit = this.distanceTraveled / this.UNIT_DISTANCE;
-
     while (this.spawnIndex < LEVEL_TRACK_DATA.length) {
       const item = LEVEL_TRACK_DATA[this.spawnIndex];
-      // Spawn slightly ahead of the screen
-      const spawnScreenX = 720 + 200;
+      const spawnScreenX = 720 + 300;
       const targetTravelDist = item.distance * this.UNIT_DISTANCE;
 
       if (this.distanceTraveled + spawnScreenX >= targetTravelDist) {
@@ -266,7 +248,9 @@ export class GameController {
         if (this.intersects(playerHitbox, colHitbox)) {
           const value = col.collect();
           this.currentScore += value;
-          this.uiManager.updateScore(this.currentScore);
+
+          const globalPos = col.toGlobal(new Point(0, 0));
+          this.uiManager.triggerCollect(globalPos.x, globalPos.y, col.itemType, this.currentScore);
           SoundManager.getInstance().play('collect');
         }
       }
