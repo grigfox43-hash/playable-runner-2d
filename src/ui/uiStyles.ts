@@ -452,17 +452,17 @@ export function injectGameStyles(): void {
         overflow: visible;
       }
       .footer-graphic {
-        height: 150%;
-        max-width: 55vw;
+        height: 200%;
+        max-width: 60vw;
         transform: none;
       }
       .footer-cta {
-        padding: 5px 14px;
-        font-size: clamp(10px, 2.2vh, 13px);
-        border-radius: 8px;
+        padding: 4px 11px;
+        font-size: clamp(9px, 1.9vh, 12px);
+        border-radius: 7px;
         border: 1.5px solid #ffe082;
-        box-shadow: 0 2px 0 #c25e00, 0 4px 6px rgba(0,0,0,0.3);
-        margin-right: 1%;
+        box-shadow: 0 2px 0 #c25e00, 0 3px 5px rgba(0,0,0,0.3);
+        margin-right: 1.5%;
         margin-top: -6px;
         transform: translateY(-4px);
       }
