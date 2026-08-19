@@ -287,7 +287,19 @@ export class UIManager {
 
   public updateScore(amount: number): void {
     this.currentScore = amount;
-    this.scoreDisplay.textContent = `$${Math.floor(amount)}`;
+    const floorAmount = Math.floor(amount);
+    this.scoreDisplay.textContent = `$${floorAmount}`;
+
+    if (floorAmount < 10) {
+      this.scoreDisplay.style.fontSize = 'clamp(20px, 3.5vw, 28px)';
+      this.scoreDisplay.style.left = '48%';
+    } else if (floorAmount < 100) {
+      this.scoreDisplay.style.fontSize = 'clamp(15px, 2.6vw, 21px)';
+      this.scoreDisplay.style.left = '45%';
+    } else {
+      this.scoreDisplay.style.fontSize = 'clamp(12px, 2.0vw, 16px)';
+      this.scoreDisplay.style.left = '42%';
+    }
   }
 
   public showEndCard(isWin: boolean, finalScore: number): void {

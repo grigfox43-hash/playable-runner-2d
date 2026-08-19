@@ -43,6 +43,15 @@ export class Enemy extends Container {
     }
   }
 
+  public playRun(): void {
+    if (!this.spritesheet) return;
+    const runFrames = this.spritesheet.animations.run || Object.values(this.spritesheet.animations)[0];
+    if (runFrames) {
+      this.animatedSprite.textures = runFrames;
+      this.animatedSprite.play();
+    }
+  }
+
   public update(deltaMs: number): void {
     const totalSpeed = this.speed + ENEMY_CONFIG.CHASE_SPEED;
     this.x -= (totalSpeed * deltaMs) / 1000;

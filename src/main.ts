@@ -105,6 +105,37 @@ async function bootstrap() {
     const deltaMs = ticker.deltaMS;
     gameController.update(deltaMs);
   });
+
+  // Tab visibility & App switch pause/resume
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      app.ticker.stop();
+      SoundManager.getInstance().pauseAll();
+    } else {
+      app.ticker.start();
+      SoundManager.getInstance().resumeAll();
+    }
+  };
+
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+  window.addEventListener('blur', () => {
+    app.ticker.stop();
+    SoundManager.getInstance().pauseAll();
+  });
+  window.addEventListener('focus', () => {
+    app.ticker.start();
+    SoundManager.getInstance().resumeAll();
+  });
+
+  gameController.adapter.onViewableChange((viewable: boolean) => {
+    if (viewable) {
+      app.ticker.start();
+      SoundManager.getInstance().resumeAll();
+    } else {
+      app.ticker.stop();
+      SoundManager.getInstance().pauseAll();
+    }
+  });
 }
 
 window.addEventListener('DOMContentLoaded', () => {

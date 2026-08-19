@@ -64,4 +64,15 @@ export class MraidAdapter {
       window.location.href = url;
     }
   }
+
+  public onViewableChange(callback: (viewable: boolean) => void): void {
+    const w = window as any;
+    if (w.mraid && typeof w.mraid.addEventListener === 'function') {
+      try {
+        w.mraid.addEventListener('viewableChange', callback);
+      } catch (e) {
+        console.warn('mraid addEventListener error:', e);
+      }
+    }
+  }
 }

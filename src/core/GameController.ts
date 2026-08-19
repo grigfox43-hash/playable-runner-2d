@@ -40,7 +40,7 @@ export class GameController {
   private isTutorialPaused: boolean = false;
 
   private readonly UNIT_DISTANCE: number = 700;
-  private readonly TUTORIAL_DISTANCE_TRIGGER: number = 280;
+  private readonly TUTORIAL_DISTANCE_TRIGGER: number = 320;
 
   constructor(app: Application) {
     this.app = app;
@@ -92,14 +92,20 @@ export class GameController {
     if (this.isTutorialPaused) {
       this.isTutorialPaused = false;
       this.currentSpeed = SPEED_CONFIG.BASE_SPEED;
+      this.player.playAnimation(PlayerAnimState.RUN);
+      for (const e of this.enemies) {
+        e.playRun();
+      }
       this.uiManager.hideTutorial();
+      this.player.jump();
+      return;
     }
 
     this.player.jump();
   }
 
   public update(deltaMs: number): void {
-    if (this.state === GameState.INTRO) {
+    if (this.state === GameState.INTRO || this.isTutorialPaused) {
       this.player.update(deltaMs);
       return;
     }
@@ -116,6 +122,10 @@ export class GameController {
     // Update player
     this.player.update(deltaMs);
 
+    const scale = this.worldContainer.scale.x || 1;
+    const leftEdgeInStage = (0 - this.worldContainer.x) / scale;
+    const cleanupX = Math.min(-600, leftEdgeInStage - 300);
+
     // Update enemies
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const enemy = this.enemies[i];
@@ -127,11 +137,14 @@ export class GameController {
         if (dist > 0 && dist < this.TUTORIAL_DISTANCE_TRIGGER) {
           this.tutorialTriggered = true;
           this.isTutorialPaused = true;
+          this.currentSpeed = 0;
+          this.player.playAnimation(PlayerAnimState.IDLE);
+          enemy.playIdle();
           this.uiManager.showTutorial('SWIPE UP TO JUMP');
         }
       }
 
-      if (enemy.x < -400) {
+      if (enemy.x < cleanupX) {
         this.entityContainer.removeChild(enemy);
         enemy.destroy();
         this.enemies.splice(i, 1);
@@ -144,7 +157,7 @@ export class GameController {
       obs.speed = this.currentSpeed;
       obs.update(deltaMs);
 
-      if (obs.x < -400) {
+      if (obs.x < cleanupX) {
         this.entityContainer.removeChild(obs);
         obs.destroy();
         this.obstacles.splice(i, 1);
@@ -152,7 +165,7 @@ export class GameController {
     }
 
     // Update EVADE warning labels
-    this.updateWarningLabels(deltaMs);
+    this.updateWarningLabels(deltaMs, cleanupX);
 
     // Update collectibles
     for (let i = this.collectibles.length - 1; i >= 0; i--) {
@@ -160,7 +173,7 @@ export class GameController {
       col.speed = this.currentSpeed;
       const finished = col.update(deltaMs);
 
-      if (finished || col.x < -400) {
+      if (finished || col.x < cleanupX) {
         this.entityContainer.removeChild(col);
         col.destroy();
         this.collectibles.splice(i, 1);
@@ -190,7 +203,8 @@ export class GameController {
       const targetTravelDist = item.distance * this.UNIT_DISTANCE;
 
       if (this.distanceTraveled + spawnScreenX >= targetTravelDist) {
-        this.spawnEntity(item, spawnScreenX);
+        const itemSpawnX = targetTravelDist - this.distanceTraveled;
+        this.spawnEntity(item, itemSpawnX);
         this.spawnIndex++;
       } else {
         break;
@@ -280,7 +294,7 @@ export class GameController {
     this.warningLabels.push({ container, gameX: x });
   }
 
-  private updateWarningLabels(deltaMs: number): void {
+  private updateWarningLabels(deltaMs: number, cleanupX: number): void {
     const move = (this.currentSpeed * deltaMs) / 1000;
     for (let i = this.warningLabels.length - 1; i >= 0; i--) {
       const item = this.warningLabels[i];
@@ -290,7 +304,7 @@ export class GameController {
       const pulse = 1 + Math.sin(Date.now() * 0.008) * 0.08;
       item.container.scale.set(pulse);
 
-      if (item.gameX < -400) {
+      if (item.gameX < cleanupX) {
         this.entityContainer.removeChild(item.container);
         item.container.destroy();
         this.warningLabels.splice(i, 1);
