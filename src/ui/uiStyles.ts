@@ -475,6 +475,14 @@ export function injectGameStyles(): void {
 
     /* ========== LANDSCAPE RESPONSIVE FIX ========== */
     @media (orientation: landscape), (max-height: 600px) {
+      .hp-container {
+        transform: scale(1.15);
+        transform-origin: top left;
+      }
+      .paypal-counter {
+        transform: scale(1.15);
+        transform-origin: top right;
+      }
       .end-title {
         font-size: clamp(20px, 4.5vh, 28px);
         margin: 0;
@@ -490,7 +498,7 @@ export function injectGameStyles(): void {
       .paypal-card-amount {
         bottom: 25%;
         left: 42%;
-        font-size: clamp(29px, 6.0vh, 44px);
+        font-size: clamp(26px, 6.0vh, 44px);
       }
       .countdown-container {
         margin: 2px 0 6px 0;
