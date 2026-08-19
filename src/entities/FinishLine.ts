@@ -164,8 +164,9 @@ export class FinishLine extends Container {
     const offsetX = side === 'left' ? FINISH_ROPE_CONFIG.LEFT_ROPE_OFFSET_X : FINISH_ROPE_CONFIG.RIGHT_ROPE_OFFSET_X;
     const offsetY = side === 'left' ? FINISH_ROPE_CONFIG.LEFT_ROPE_OFFSET_Y : FINISH_ROPE_CONFIG.RIGHT_ROPE_OFFSET_Y;
 
-    for (let m = 0; m < FINISH_ROPE_CONFIG.ROPE_SEGMENTS; m++) {
-      const q = (m / (FINISH_ROPE_CONFIG.ROPE_SEGMENTS - 1)) * width * FINISH_ROPE_CONFIG.ROPE_LENGTH_FACTOR;
+    const numSegments = 12;
+    for (let m = 0; m < numSegments; m++) {
+      const q = (m / (numSegments - 1)) * width * 0.45;
       const E = 0;
       const b = q * cos - E * sin;
       const T = q * sin + E * cos;
@@ -188,8 +189,8 @@ export class FinishLine extends Container {
 
   private updateRopeAnimation(): void {
     this.animationTime += 0.05;
-    this.animateRopePoints(this.leftRopePoints, this.leftVelocities);
-    this.animateRopePoints(this.rightRopePoints, this.rightVelocities);
+    this.animateRopePoints(this.leftRopePoints, this.leftVelocities, 'left');
+    this.animateRopePoints(this.rightRopePoints, this.rightVelocities, 'right');
 
     let totalV = 0;
     let count = 0;
@@ -199,35 +200,60 @@ export class FinishLine extends Container {
     });
 
     const avgV = count > 0 ? totalV / count : 0;
-    if (avgV < FINISH_ROPE_CONFIG.MIN_VELOCITY_THRESHOLD && this.animationTime > FINISH_ROPE_CONFIG.MIN_ANIMATION_TIME) {
+    if (avgV < 0.05 && this.animationTime > 2.0) {
       this.isAnimating = false;
     }
   }
 
-  private animateRopePoints(points: Point[], velocities: PointVelocity[]): void {
-    const decay = Math.exp(-this.animationTime * FINISH_ROPE_CONFIG.TIME_DECAY);
-    const gravity = FINISH_ROPE_CONFIG.GRAVITY * decay;
-    const wave = decay;
+  private animateRopePoints(points: Point[], velocities: PointVelocity[], side: 'left' | 'right'): void {
+    if (points.length < 2) return;
+
+    const floorY = side === 'left' ? this.groundY - 15 : this.groundY - 10;
+    const segmentDist = 18;
 
     for (let a = 1; a < points.length; a++) {
       const pt = points[a];
       const vel = velocities[a];
-      vel.y += gravity;
-      vel.x += Math.sin(this.animationTime * FINISH_ROPE_CONFIG.WAVE_SPEED + a) * wave;
-      vel.x *= FINISH_ROPE_CONFIG.DAMPING;
-      vel.y *= FINISH_ROPE_CONFIG.DAMPING;
+
+      // Gravity pulling broken ribbon ends to the floor
+      vel.y += 0.9;
+
+      // Small air fluttering on the way down
+      const flutter = Math.sin(this.animationTime * 5 + a) * 0.4 * Math.max(0, 1 - this.animationTime * 0.3);
+      vel.x += flutter;
+
+      // Damping
+      vel.x *= 0.92;
+      vel.y *= 0.92;
 
       pt.x += vel.x;
       pt.y += vel.y;
 
-      const prev = points[a - 1];
-      const dx = pt.x - prev.x;
-      const dy = pt.y - prev.y;
-      const dist = Math.hypot(dx, dy) || 1;
-      if (dist > FINISH_ROPE_CONFIG.ROPE_SEGMENT_DISTANCE) {
-        const ratio = FINISH_ROPE_CONFIG.ROPE_SEGMENT_DISTANCE / dist;
-        pt.x = prev.x + dx * ratio;
-        pt.y = prev.y + dy * ratio;
+      // Floor collision - ribbon end falls and lands on the pavement
+      if (pt.y >= floorY) {
+        pt.y = floorY;
+        vel.y = 0;
+        vel.x *= 0.6; // Ground friction
+      }
+    }
+
+    // Relaxation passes so segments stay smoothly connected and drape naturally
+    for (let pass = 0; pass < 4; pass++) {
+      for (let a = 1; a < points.length; a++) {
+        const prev = points[a - 1];
+        const curr = points[a];
+        const dx = curr.x - prev.x;
+        const dy = curr.y - prev.y;
+        const dist = Math.hypot(dx, dy) || 1;
+
+        if (dist > segmentDist) {
+          const ratio = segmentDist / dist;
+          curr.x = prev.x + dx * ratio;
+          curr.y = prev.y + dy * ratio;
+          if (curr.y > floorY) {
+            curr.y = floorY;
+          }
+        }
       }
     }
   }

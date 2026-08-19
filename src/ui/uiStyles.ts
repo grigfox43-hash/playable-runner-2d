@@ -478,11 +478,12 @@ export function injectGameStyles(): void {
     /* ========== LANDSCAPE RESPONSIVE FIX ========== */
     @media (orientation: landscape), (max-height: 600px) {
       .hp-container {
-        transform: scale(1.15);
+        transform: scale(1.38);
         transform-origin: top left;
       }
       .paypal-counter {
-        transform: scale(1.15);
+        --counter-base-scale: 1.38;
+        transform: scale(1.38);
         transform-origin: top right;
       }
       .end-title {
