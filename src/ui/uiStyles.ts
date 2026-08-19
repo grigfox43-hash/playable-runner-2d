@@ -449,10 +449,12 @@ export function injectGameStyles(): void {
       .game-footer {
         height: clamp(51px, 12.6vh, 72px);
         padding: 0 1.5% 0 0;
+        overflow: visible;
       }
       .footer-graphic {
-        height: 100%;
+        height: 150%;
         max-width: 55vw;
+        transform: translateY(-14px);
       }
       .footer-cta {
         padding: 5px 14px;
@@ -473,7 +475,6 @@ export function injectGameStyles(): void {
       width: 100%;
       height: clamp(54px, 8.5vh, 76px);
       background-color: #8b3ffc;
-      border-top: 3px solid #ffffff;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -481,10 +482,11 @@ export function injectGameStyles(): void {
       z-index: 100;
       box-sizing: border-box;
       pointer-events: auto;
+      overflow: visible;
     }
 
     .footer-graphic {
-      height: 100%;
+      height: 110%;
       width: auto;
       max-width: 68vw;
       object-fit: contain;
@@ -492,6 +494,7 @@ export function injectGameStyles(): void {
       pointer-events: none;
       user-select: none;
       display: block;
+      transform: translateY(-8px);
     }
 
     .footer-cta {
