@@ -8,6 +8,7 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Extraction scripts and temporary data
+*.png
 *.py
 *.cjs
 *.json
@@ -35,3 +36,5 @@ extracted_raw_objects.json
 generate_ts_modules.js
 run_sandbox.cjs
 prepare_generator.py
+
+.vercel
