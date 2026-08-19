@@ -28,7 +28,6 @@ export class UIManager {
   private countdownTimer!: HTMLDivElement;
   private countdownInterval: number | null = null;
 
-  private gameFooter!: HTMLDivElement;
   private adapter: MraidAdapter;
 
   private currentScore: number = 0;
@@ -178,21 +177,6 @@ export class UIManager {
 
     this.endOverlay.appendChild(endContent);
     this.uiContainer.appendChild(this.endOverlay);
-
-    // 5. Footer
-    this.gameFooter = document.createElement('div');
-    this.gameFooter.className = 'game-footer';
-
-    const footerCta = document.createElement('button');
-    footerCta.className = 'footer-cta';
-    footerCta.textContent = 'DOWNLOAD';
-    footerCta.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.adapter.openStore();
-    });
-    this.gameFooter.appendChild(footerCta);
-
-    this.uiContainer.appendChild(this.gameFooter);
   }
 
   private renderHearts(hp: number): void {
