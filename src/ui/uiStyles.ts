@@ -428,27 +428,27 @@ export function injectGameStyles(): void {
     }
 
     .footer-graphic {
-      height: 100%;
+      height: 125%;
       width: auto;
-      max-width: 68vw;
+      max-width: 70vw;
       object-fit: contain;
       object-position: left bottom;
       pointer-events: none;
       user-select: none;
       display: block;
-      transform: none;
+      transform: translateY(-4px);
     }
 
     .footer-cta {
       background: linear-gradient(180deg, #ffc837 0%, #ff8008 100%);
       color: #ffffff;
       border: 2px solid #ffe082;
-      border-radius: 9px;
-      padding: 6px 16px;
-      font-size: clamp(11px, 2.0vw, 14px);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: clamp(10px, 1.8vw, 13px);
       font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.2px;
       box-shadow: 0 3px 0 #c25e00, 0 4px 8px rgba(0,0,0,0.3);
       text-shadow: 0 1px 2px rgba(0,0,0,0.5);
       cursor: pointer;
@@ -502,24 +502,24 @@ export function injectGameStyles(): void {
         box-shadow: 0 4px 0 #c25e00, 0 6px 10px rgba(0,0,0,0.5);
       }
       .game-footer {
-        height: clamp(61px, 15.1vh, 86px);
+        height: clamp(56px, 14vh, 80px);
         padding: 0 1.5% 0 0;
         overflow: visible;
       }
       .footer-graphic {
-        height: 200%;
-        max-width: 60vw;
-        transform: translateY(-5px);
+        height: 105%;
+        max-width: 55vw;
+        transform: translateY(-8px);
       }
       .footer-cta {
-        padding: 4px 11px;
-        font-size: clamp(9px, 1.9vh, 12px);
+        padding: 4px 8px;
+        font-size: clamp(9px, 1.8vh, 11px);
         border-radius: 7px;
         border: 1.5px solid #ffe082;
         box-shadow: 0 2px 0 #c25e00, 0 3px 5px rgba(0,0,0,0.3);
         margin-right: 1.5%;
-        margin-top: -6px;
-        transform: translateY(-4px);
+        margin-top: -4px;
+        transform: translateY(-3px);
       }
     }
   `;
