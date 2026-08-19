@@ -409,65 +409,6 @@ export function injectGameStyles(): void {
       box-shadow: 0 2px 0 #c25e00, 0 4px 8px rgba(0,0,0,0.5);
     }
 
-    /* ========== LANDSCAPE RESPONSIVE FIX ========== */
-    @media (orientation: landscape), (max-height: 600px) {
-      .end-title {
-        font-size: clamp(20px, 4.5vh, 28px);
-        margin: 0;
-      }
-      .end-subtitle {
-        font-size: clamp(12px, 3vh, 16px);
-        margin: 2px 0 6px 0;
-      }
-      .paypal-card-container {
-        width: min(44vh, 235px);
-        margin: 4px 0;
-      }
-      .paypal-card-amount {
-        bottom: 25%;
-        left: 42%;
-        font-size: clamp(29px, 6.0vh, 44px);
-      }
-      .countdown-container {
-        margin: 2px 0 6px 0;
-      }
-      .countdown-timer {
-        font-size: clamp(18px, 3.8vh, 24px);
-      }
-      .countdown-text {
-        font-size: clamp(10px, 2vh, 13px);
-      }
-      .cta-button {
-        padding: 8px 32px;
-        font-size: clamp(14px, 3.2vh, 18px);
-        border-radius: 12px;
-        box-shadow: 0 4px 0 #b32020, 0 6px 10px rgba(0,0,0,0.5);
-      }
-      .cta-button.win {
-        box-shadow: 0 4px 0 #c25e00, 0 6px 10px rgba(0,0,0,0.5);
-      }
-      .game-footer {
-        height: clamp(61px, 15.1vh, 86px);
-        padding: 0 1.5% 0 0;
-        overflow: visible;
-      }
-      .footer-graphic {
-        height: 200%;
-        max-width: 60vw;
-        transform: none;
-      }
-      .footer-cta {
-        padding: 4px 11px;
-        font-size: clamp(9px, 1.9vh, 12px);
-        border-radius: 7px;
-        border: 1.5px solid #ffe082;
-        box-shadow: 0 2px 0 #c25e00, 0 3px 5px rgba(0,0,0,0.3);
-        margin-right: 1.5%;
-        margin-top: -6px;
-        transform: translateY(-4px);
-      }
-    }
-
     /* ========== BOTTOM GAME FOOTER BANNER ========== */
     .game-footer {
       position: fixed;
@@ -521,6 +462,65 @@ export function injectGameStyles(): void {
     .footer-cta:active {
       transform: translateY(2px);
       box-shadow: 0 1px 0 #c25e00, 0 2px 4px rgba(0,0,0,0.4);
+    }
+
+    /* ========== LANDSCAPE RESPONSIVE FIX ========== */
+    @media (orientation: landscape), (max-height: 600px) {
+      .end-title {
+        font-size: clamp(20px, 4.5vh, 28px);
+        margin: 0;
+      }
+      .end-subtitle {
+        font-size: clamp(12px, 3vh, 16px);
+        margin: 2px 0 6px 0;
+      }
+      .paypal-card-container {
+        width: min(44vh, 235px);
+        margin: 4px 0;
+      }
+      .paypal-card-amount {
+        bottom: 25%;
+        left: 42%;
+        font-size: clamp(29px, 6.0vh, 44px);
+      }
+      .countdown-container {
+        margin: 2px 0 6px 0;
+      }
+      .countdown-timer {
+        font-size: clamp(18px, 3.8vh, 24px);
+      }
+      .countdown-text {
+        font-size: clamp(10px, 2vh, 13px);
+      }
+      .cta-button {
+        padding: 8px 32px;
+        font-size: clamp(14px, 3.2vh, 18px);
+        border-radius: 12px;
+        box-shadow: 0 4px 0 #b32020, 0 6px 10px rgba(0,0,0,0.5);
+      }
+      .cta-button.win {
+        box-shadow: 0 4px 0 #c25e00, 0 6px 10px rgba(0,0,0,0.5);
+      }
+      .game-footer {
+        height: clamp(61px, 15.1vh, 86px);
+        padding: 0 1.5% 0 0;
+        overflow: visible;
+      }
+      .footer-graphic {
+        height: 200%;
+        max-width: 60vw;
+        transform: translateY(-5px);
+      }
+      .footer-cta {
+        padding: 4px 11px;
+        font-size: clamp(9px, 1.9vh, 12px);
+        border-radius: 7px;
+        border: 1.5px solid #ffe082;
+        box-shadow: 0 2px 0 #c25e00, 0 3px 5px rgba(0,0,0,0.3);
+        margin-right: 1.5%;
+        margin-top: -6px;
+        transform: translateY(-4px);
+      }
     }
   `;
 
