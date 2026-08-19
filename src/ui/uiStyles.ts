@@ -337,7 +337,7 @@ export function injectGameStyles(): void {
       left: 42%;
       right: 5%;
       text-align: center;
-      font-size: clamp(40px, 8.6vw, 62px);
+      font-size: clamp(34px, 7.3vw, 53px);
       font-weight: 900;
       color: #ffffff;
       -webkit-text-stroke: 3.5px #000000;
