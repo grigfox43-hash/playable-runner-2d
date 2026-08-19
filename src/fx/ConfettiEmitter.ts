@@ -1,9 +1,9 @@
-import { Container, Sprite, Texture, Assets } from 'pixi.js';
+import { Container, Sprite, Texture, Assets, Graphics } from 'pixi.js';
 import { ASSET_IMAGES } from '../assets/assetData';
-import { CONFETTI_CONFIG, LAYER_Z_INDEX } from '../config/constants';
+import { LAYER_Z_INDEX } from '../config/constants';
 
 interface ConfettiParticle {
-  sprite: Sprite;
+  sprite: Sprite | Graphics;
   vx: number;
   vy: number;
   rotSpeed: number;
@@ -35,38 +35,48 @@ export class ConfettiEmitter extends Container {
   }
 
   public burstVictory(screenWidth: number, screenHeight: number): void {
-    if (this.textures.length === 0) return;
     this.isActive = true;
 
-    const groundY = 1000; // Ground line level
-    const count = 120; // High particle density
+    const groundY = 1000; // Road level
+    const count = 140; // High particle density
+    const colors = [0xffd700, 0xff1744, 0x00e676, 0x2979ff, 0xff9100, 0xe040fb, 0x00e5ff, 0xffffff];
 
-    // Ground fountain shooting rapidly straight upwards
     for (let i = 0; i < count; i++) {
-      const tex = this.textures[Math.floor(Math.random() * this.textures.length)];
-      const sprite = new Sprite(tex);
-      sprite.anchor.set(0.5);
+      let particleDisplay: Sprite | Graphics;
 
-      const scale = 0.9 + Math.random() * 0.8;
-      sprite.scale.set(scale);
+      if (this.textures.length > 0) {
+        const tex = this.textures[Math.floor(Math.random() * this.textures.length)];
+        const sprite = new Sprite(tex);
+        sprite.anchor.set(0.5);
+        sprite.scale.set(0.9 + Math.random() * 0.8);
+        particleDisplay = sprite;
+      } else {
+        const g = new Graphics();
+        const col = colors[Math.floor(Math.random() * colors.length)];
+        const w = 14 + Math.random() * 10;
+        const h = 8 + Math.random() * 6;
+        g.rect(-w / 2, -h / 2, w, h);
+        g.fill(col);
+        particleDisplay = g;
+      }
 
       // Distribute spawn points across the road width
-      const originX = (screenWidth * 0.1) + Math.random() * (screenWidth * 0.8);
+      const originX = (screenWidth * 0.05) + Math.random() * (screenWidth * 0.9);
       const originY = groundY + (Math.random() - 0.5) * 40;
 
-      sprite.x = originX;
-      sprite.y = originY;
-      this.addChild(sprite);
+      particleDisplay.x = originX;
+      particleDisplay.y = originY;
+      this.addChild(particleDisplay);
 
       // Fast upward velocity from ground into the sky
-      const speedUp = 22 + Math.random() * 16; // 22..38 px/frame (fast burst)
-      const spreadX = (Math.random() - 0.5) * 14;
+      const speedUp = 24 + Math.random() * 18; // 24..42 px/frame (rapid burst!)
+      const spreadX = (Math.random() - 0.5) * 16;
 
       this.particles.push({
-        sprite,
+        sprite: particleDisplay,
         vx: spreadX,
         vy: -speedUp,
-        rotSpeed: (Math.random() - 0.5) * 0.25,
+        rotSpeed: (Math.random() - 0.5) * 0.3,
         life: 0,
         maxLife: 3500 + Math.random() * 1500
       });
@@ -77,7 +87,7 @@ export class ConfettiEmitter extends Container {
     if (!this.isActive || this.particles.length === 0) return;
 
     const remaining: ConfettiParticle[] = [];
-    const gravity = 0.038 * deltaMs; // Smooth downward gravity
+    const gravity = 0.042 * deltaMs; // Downward gravity
 
     for (const p of this.particles) {
       p.life += deltaMs;

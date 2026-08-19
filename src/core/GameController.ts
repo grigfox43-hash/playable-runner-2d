@@ -65,6 +65,7 @@ export class GameController {
   public async init(): Promise<void> {
     await this.parallaxBg.init();
     await this.player.init();
+    await this.confettiEmitter.init();
     this.entityContainer.addChild(this.player);
 
     // Initial state: standing still on the far left
@@ -253,8 +254,8 @@ export class GameController {
         this.obstacles.push(obs);
         this.entityContainer.addChild(obs);
 
-        // Add yellow EVADE warning badge above the cone
-        this.createWarningLabel(spawnX, (1280 - PLAYER_CONFIG.GROUND_Y) - 110);
+        // Add yellow EVADE warning badge floating clearly above the cone
+        this.createWarningLabel(spawnX, (1280 - PLAYER_CONFIG.GROUND_Y) - 160);
         break;
       }
       case 'collectible': {

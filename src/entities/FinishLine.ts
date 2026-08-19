@@ -56,7 +56,7 @@ export class FinishLine extends Container {
     this.floorPattern = new Sprite(floorTex);
     this.floorPattern.anchor.set(0.5, 0.5);
     this.floorPattern.x = 0;
-    this.floorPattern.y = ground - 80;
+    this.floorPattern.y = ground - 40;
     this.floorPattern.scale.set(2);
     this.floorPattern.zIndex = 5;
     this.addChild(this.floorPattern);
@@ -66,7 +66,7 @@ export class FinishLine extends Container {
     this.leftPole.anchor.set(0.5, 1);
     this.leftPole.rotation = -Math.PI / 2;
     this.leftPole.x = -370;
-    this.leftPole.y = ground - 182;
+    this.leftPole.y = ground - 142;
     this.leftPole.scale.set(1);
     this.leftPole.zIndex = 8;
     this.addChild(this.leftPole);
@@ -76,7 +76,7 @@ export class FinishLine extends Container {
     this.rightPole.anchor.set(0.5, 1);
     this.rightPole.rotation = -Math.PI / 2;
     this.rightPole.x = -235;
-    this.rightPole.y = ground - 95;
+    this.rightPole.y = ground - 55;
     this.rightPole.scale.set(1);
     this.rightPole.zIndex = 12;
     this.addChild(this.rightPole);

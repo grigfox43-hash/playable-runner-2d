@@ -337,9 +337,9 @@ export function injectGameStyles(): void {
       font-size: clamp(42px, 7.2vw, 64px);
       font-weight: 900;
       color: #ffffff;
-      -webkit-text-stroke: 2px #000000;
+      -webkit-text-stroke: 4px #000000;
       paint-order: stroke fill;
-      filter: drop-shadow(0 3px 4px rgba(0,0,0,0.4));
+      filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
       letter-spacing: -0.5px;
     }
 
