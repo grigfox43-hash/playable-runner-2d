@@ -1,6 +1,6 @@
 import { Container, Sprite, Texture, Assets } from 'pixi.js';
 import { ASSET_IMAGES } from '../assets/assetData';
-import { LAYER_Z_INDEX, PLAYER_CONFIG, SPEED_CONFIG } from '../config/constants';
+import { LAYER_Z_INDEX, PLAYER_CONFIG } from '../config/constants';
 
 interface PropItem {
   sprite: Sprite;
@@ -25,7 +25,7 @@ export class ParallaxBg extends Container {
   private readonly LAMP_SPACING = 800;
   private readonly TREE_MIN_SPACING = 300;
   private readonly TREE_MAX_SPACING = 500;
-  private readonly SCREEN_BUFFER = 1200;
+  private readonly SCREEN_BUFFER = 1600;
 
   constructor() {
     super();
@@ -78,25 +78,30 @@ export class ParallaxBg extends Container {
 
     const tileWidth = this.bgTexture.width * this.bgScale;
     const offsetY = (1280 - this.bgTexture.height * this.bgScale) / 2;
-    const numTiles = 8;
+    const numPairs = 6; // 12 tiles total spanning ~36000px
 
-    for (let i = 0; i < numTiles; i++) {
-      const tile = new Sprite(this.bgTexture);
-      tile.y = offsetY;
-      tile.zIndex = LAYER_Z_INDEX.FAR_BACKGROUND;
-      tile.anchor.set(0, 0);
+    for (let p = 0; p < numPairs; p++) {
+      const pairBaseX = (p - 2) * (2 * tileWidth);
 
-      // Alternating mirror for seamless horizon
-      if (i % 2 === 1) {
-        tile.scale.set(-this.bgScale, this.bgScale);
-        tile.x = (i + 1) * tileWidth - tileWidth * 2;
-      } else {
-        tile.scale.set(this.bgScale, this.bgScale);
-        tile.x = i * tileWidth - tileWidth * 2;
-      }
+      // Tile 0 of pair: standard orientation [pairBaseX, pairBaseX + tileWidth]
+      const tileA = new Sprite(this.bgTexture);
+      tileA.y = offsetY;
+      tileA.zIndex = LAYER_Z_INDEX.FAR_BACKGROUND;
+      tileA.anchor.set(0, 0);
+      tileA.scale.set(this.bgScale, this.bgScale);
+      tileA.x = pairBaseX;
+      this.addChild(tileA);
+      this.backgroundTiles.push(tileA);
 
-      this.addChild(tile);
-      this.backgroundTiles.push(tile);
+      // Tile 1 of pair: horizontally flipped [pairBaseX + tileWidth, pairBaseX + 2*tileWidth]
+      const tileB = new Sprite(this.bgTexture);
+      tileB.y = offsetY;
+      tileB.zIndex = LAYER_Z_INDEX.FAR_BACKGROUND;
+      tileB.anchor.set(0, 0);
+      tileB.scale.set(-this.bgScale, this.bgScale);
+      tileB.x = pairBaseX + 2 * tileWidth;
+      this.addChild(tileB);
+      this.backgroundTiles.push(tileB);
     }
   }
 
@@ -167,14 +172,22 @@ export class ParallaxBg extends Container {
     if (moveStep === 0 || !this.bgTexture) return;
 
     const tileWidth = this.bgTexture.width * this.bgScale;
-    const totalBgWidth = tileWidth * this.backgroundTiles.length;
+    const pairWidth = 2 * tileWidth;
+    const numPairs = this.backgroundTiles.length / 2;
+    const totalSpan = numPairs * pairWidth;
 
-    // Scroll Background Tiles
-    for (const tile of this.backgroundTiles) {
-      tile.x -= moveStep;
-      const leftBound = tile.scale.x < 0 ? tile.x - tileWidth : tile.x;
-      if (leftBound < -tileWidth * 3) {
-        tile.x += totalBgWidth;
+    // Scroll Background Tiles in pairs
+    for (let p = 0; p < numPairs; p++) {
+      const tileA = this.backgroundTiles[p * 2];
+      const tileB = this.backgroundTiles[p * 2 + 1];
+
+      tileA.x -= moveStep;
+      tileB.x -= moveStep;
+
+      // When the pair has moved fully offscreen to the left (past -pairWidth * 2)
+      if (tileA.x < -pairWidth * 2.5) {
+        tileA.x += totalSpan;
+        tileB.x += totalSpan;
       }
     }
 

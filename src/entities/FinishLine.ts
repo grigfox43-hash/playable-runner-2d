@@ -1,8 +1,8 @@
-import { Container, Sprite, Point, MeshRope, Texture, Assets, Rectangle } from 'pixi.js';
+import { Container, Sprite, Texture, Assets, Point, MeshRope } from 'pixi.js';
 import { ASSET_IMAGES } from '../assets/assetData';
 import { FINISH_ROPE_CONFIG, LAYER_Z_INDEX, PLAYER_CONFIG } from '../config/constants';
 
-interface PhysicsPoint {
+interface RopePointPhysics {
   point: Point;
   vx: number;
   vy: number;
@@ -11,20 +11,21 @@ interface PhysicsPoint {
 }
 
 export class FinishLine extends Container {
-  public speed: number = 0;
-
   private leftPole!: Sprite;
   private rightPole!: Sprite;
   private tapeTexture!: Texture;
 
+  // Intact Rope
   private intactRope: MeshRope | null = null;
+  private intactPhysics: RopePointPhysics[] = [];
+
+  // Severed Ropes
   private leftRope: MeshRope | null = null;
   private rightRope: MeshRope | null = null;
+  private leftPhysics: RopePointPhysics[] = [];
+  private rightPhysics: RopePointPhysics[] = [];
 
-  private intactPhysics: PhysicsPoint[] = [];
-  private leftPhysics: PhysicsPoint[] = [];
-  private rightPhysics: PhysicsPoint[] = [];
-
+  public speed: number = 0;
   public isBroken: boolean = false;
   private time: number = 0;
   private groundY: number = 1280 - PLAYER_CONFIG.GROUND_Y;
@@ -56,7 +57,7 @@ export class FinishLine extends Container {
     // Right Pole
     this.rightPole = new Sprite(poleTexture);
     this.rightPole.anchor.set(0.5, 1);
-    this.rightPole.scale.set(-0.8, 0.8); // mirrored
+    this.rightPole.scale.set(-0.8, 0.8);
     this.rightPole.x = this.POLE_DISTANCE / 2;
     this.rightPole.y = this.groundY;
     this.addChild(this.rightPole);
@@ -103,21 +104,15 @@ export class FinishLine extends Container {
     if (this.isBroken) return;
     this.isBroken = true;
 
-    // Remove intact rope
-    if (this.intactRope) {
-      this.removeChild(this.intactRope);
-      this.intactRope.destroy();
-      this.intactRope = null;
-    }
-
     const half = Math.floor(this.NUM_SEGMENTS / 2);
 
-    // Build Left Rope
+    // 1. Build Left Rope points before destroying intact rope
     this.leftPhysics = [];
     const leftPoints: Point[] = [];
-    for (let i = 0; i <= half; i++) {
+    for (let i = 0; i <= half && i < this.intactPhysics.length; i++) {
       const p = this.intactPhysics[i];
-      const pt = new Point(p.point.x, p.point.y);
+      if (!p) continue;
+      const pt = new Point(p.point ? p.point.x : p.baseX, p.point ? p.point.y : p.baseY);
       leftPoints.push(pt);
       this.leftPhysics.push({
         point: pt,
@@ -128,12 +123,13 @@ export class FinishLine extends Container {
       });
     }
 
-    // Build Right Rope
+    // 2. Build Right Rope points before destroying intact rope
     this.rightPhysics = [];
     const rightPoints: Point[] = [];
-    for (let i = half; i <= this.NUM_SEGMENTS; i++) {
+    for (let i = half; i < this.intactPhysics.length; i++) {
       const p = this.intactPhysics[i];
-      const pt = new Point(p.point.x, p.point.y);
+      if (!p) continue;
+      const pt = new Point(p.point ? p.point.x : p.baseX, p.point ? p.point.y : p.baseY);
       rightPoints.push(pt);
       this.rightPhysics.push({
         point: pt,
@@ -144,17 +140,29 @@ export class FinishLine extends Container {
       });
     }
 
-    this.leftRope = new MeshRope({
-      texture: this.tapeTexture,
-      points: leftPoints
-    });
-    this.rightRope = new MeshRope({
-      texture: this.tapeTexture,
-      points: rightPoints
-    });
+    // 3. Remove intact rope
+    if (this.intactRope) {
+      this.removeChild(this.intactRope);
+      this.intactRope.destroy();
+      this.intactRope = null;
+    }
+    this.intactPhysics = [];
 
-    this.addChild(this.leftRope);
-    this.addChild(this.rightRope);
+    if (leftPoints.length >= 2) {
+      this.leftRope = new MeshRope({
+        texture: this.tapeTexture,
+        points: leftPoints
+      });
+      this.addChild(this.leftRope);
+    }
+
+    if (rightPoints.length >= 2) {
+      this.rightRope = new MeshRope({
+        texture: this.tapeTexture,
+        points: rightPoints
+      });
+      this.addChild(this.rightRope);
+    }
   }
 
   public update(deltaMs: number, playerGlobalX: number = 0): void {
@@ -162,17 +170,16 @@ export class FinishLine extends Container {
     this.time += deltaMs * 0.005;
 
     if (!this.isBroken) {
-      // Wind flutter + stretch towards player if player touches
       const ropeGlobalX = this.x;
       const distToPlayer = playerGlobalX - ropeGlobalX;
 
       const numPoints = this.intactPhysics.length;
       for (let i = 1; i < numPoints - 1; i++) {
         const item = this.intactPhysics[i];
+        if (!item || !item.point) continue;
         const t = i / (numPoints - 1);
         const wave = Math.sin(this.time * 2 + t * 4) * 4;
 
-        // Player stretch interaction before breaking
         let playerPush = 0;
         if (distToPlayer > -100 && distToPlayer < 60) {
           const influence = Math.sin(t * Math.PI);
@@ -183,70 +190,63 @@ export class FinishLine extends Container {
         item.point.y = item.baseY + wave;
       }
     } else {
-      // Physics for severed Left Rope (anchored at index 0)
+      // Physics for severed Left Rope
       const leftCount = this.leftPhysics.length;
       const segmentLen = 22;
 
       for (let i = 1; i < leftCount; i++) {
         const item = this.leftPhysics[i];
+        if (!item || !item.point) continue;
         item.vy += FINISH_ROPE_CONFIG.GRAVITY;
         item.vx *= FINISH_ROPE_CONFIG.DAMPING;
         item.vy *= FINISH_ROPE_CONFIG.DAMPING;
 
-        // Wind flutter
         item.vx += Math.sin(this.time * 4 + i) * 0.2;
         item.vy += Math.cos(this.time * 3 + i) * 0.1;
 
         item.point.x += item.vx;
         item.point.y += item.vy;
 
-        // Distance constraint from previous point
         const prev = this.leftPhysics[i - 1];
-        const dx = item.point.x - prev.point.x;
-        const dy = item.point.y - prev.point.y;
-        const dist = Math.hypot(dx, dy) || 1;
-        if (dist > segmentLen) {
-          const ratio = segmentLen / dist;
-          item.point.x = prev.point.x + dx * ratio;
-          item.point.y = prev.point.y + dy * ratio;
+        if (prev && prev.point) {
+          const dx = item.point.x - prev.point.x;
+          const dy = item.point.y - prev.point.y;
+          const dist = Math.hypot(dx, dy) || 1;
+          if (dist > segmentLen) {
+            const ratio = segmentLen / dist;
+            item.point.x = prev.point.x + dx * ratio;
+            item.point.y = prev.point.y + dy * ratio;
+          }
         }
       }
 
-      // Physics for severed Right Rope (anchored at last index)
+      // Physics for severed Right Rope
       const rightCount = this.rightPhysics.length;
       for (let i = rightCount - 2; i >= 0; i--) {
         const item = this.rightPhysics[i];
+        if (!item || !item.point) continue;
         item.vy += FINISH_ROPE_CONFIG.GRAVITY;
         item.vx *= FINISH_ROPE_CONFIG.DAMPING;
         item.vy *= FINISH_ROPE_CONFIG.DAMPING;
 
-        // Wind flutter
-        item.vx += Math.sin(this.time * 4 + i) * 0.2;
+        item.vx -= Math.sin(this.time * 4 + i) * 0.2;
         item.vy += Math.cos(this.time * 3 + i) * 0.1;
 
         item.point.x += item.vx;
         item.point.y += item.vy;
 
-        // Distance constraint from next point
         const next = this.rightPhysics[i + 1];
-        const dx = item.point.x - next.point.x;
-        const dy = item.point.y - next.point.y;
-        const dist = Math.hypot(dx, dy) || 1;
-        if (dist > segmentLen) {
-          const ratio = segmentLen / dist;
-          item.point.x = next.point.x + dx * ratio;
-          item.point.y = next.point.y + dy * ratio;
+        if (next && next.point) {
+          const dx = item.point.x - next.point.x;
+          const dy = item.point.y - next.point.y;
+          const dist = Math.hypot(dx, dy) || 1;
+          if (dist > segmentLen) {
+            const ratio = segmentLen / dist;
+            item.point.x = next.point.x + dx * ratio;
+            item.point.y = next.point.y + dy * ratio;
+          }
         }
       }
     }
-  }
-
-  public getHitbox(): Rectangle {
-    return new Rectangle(
-      this.x - 30,
-      this.groundY + this.ROPE_Y_OFFSET - 40,
-      60,
-      120
-    );
   }
 }

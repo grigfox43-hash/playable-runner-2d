@@ -180,8 +180,8 @@ export function injectGameStyles(): void {
 
     .tutorial-hand {
       position: fixed;
-      bottom: 24vh;
-      left: 38%;
+      bottom: 12vh;
+      left: 50%;
       transform: translate(-50%);
       pointer-events: none !important;
     }
@@ -332,7 +332,7 @@ export function injectGameStyles(): void {
       left: 42%;
       right: 5%;
       text-align: center;
-      font-size: clamp(24px, 4.2vw, 38px);
+      font-size: clamp(30px, 5.2vw, 48px);
       font-weight: 900;
       color: #000000;
       letter-spacing: -0.5px;
@@ -406,7 +406,7 @@ export function injectGameStyles(): void {
       .paypal-card-amount {
         bottom: 18%;
         left: 42%;
-        font-size: clamp(18px, 3.8vh, 28px);
+        font-size: clamp(22px, 4.8vh, 34px);
       }
       .countdown-container {
         margin: 2px 0 6px 0;
