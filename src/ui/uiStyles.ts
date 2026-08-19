@@ -433,10 +433,12 @@ export function injectGameStyles(): void {
       max-width: 70vw;
       object-fit: contain;
       object-position: left bottom;
+      align-self: flex-end;
       pointer-events: none;
       user-select: none;
       display: block;
-      transform: translateY(-4px);
+      margin: 0;
+      transform: none;
     }
 
     .footer-cta {
@@ -507,9 +509,11 @@ export function injectGameStyles(): void {
         overflow: visible;
       }
       .footer-graphic {
-        height: 105%;
-        max-width: 55vw;
-        transform: translateY(-8px);
+        height: 132%;
+        max-width: 58vw;
+        align-self: flex-end;
+        margin: 0;
+        transform: none;
       }
       .footer-cta {
         padding: 4px 8px;
