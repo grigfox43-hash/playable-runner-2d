@@ -447,14 +447,12 @@ export function injectGameStyles(): void {
         box-shadow: 0 4px 0 #c25e00, 0 6px 10px rgba(0,0,0,0.5);
       }
       .game-footer {
-        background-image: var(--footer-portrait);
-        background-color: #8b3ffc;
-        background-size: auto 100%;
-        background-repeat: no-repeat;
-        background-position: left bottom;
-        height: clamp(52px, 12vh, 74px);
-        border-top: 3px solid #ffffff;
-        padding-right: 1.5%;
+        height: clamp(48px, 12vh, 68px);
+        padding: 0 1.5% 0 0;
+      }
+      .footer-graphic {
+        height: 100%;
+        max-width: 55vw;
       }
       .footer-cta {
         padding: 5px 14px;
@@ -473,18 +471,27 @@ export function injectGameStyles(): void {
       bottom: 0;
       left: 0;
       width: 100%;
-      height: clamp(58px, 8.5vh, 80px);
-      background-image: var(--footer-portrait);
-      background-size: 100% 100%;
-      background-repeat: no-repeat;
-      background-position: center bottom;
+      height: clamp(54px, 8.5vh, 76px);
+      background-color: #8b3ffc;
+      border-top: 3px solid #ffffff;
       display: flex;
       align-items: center;
-      justify-content: flex-end;
-      padding-right: 3%;
+      justify-content: space-between;
+      padding: 0 2% 0 0;
       z-index: 100;
       box-sizing: border-box;
       pointer-events: auto;
+    }
+
+    .footer-graphic {
+      height: 100%;
+      width: auto;
+      max-width: 68vw;
+      object-fit: contain;
+      object-position: left bottom;
+      pointer-events: none;
+      user-select: none;
+      display: block;
     }
 
     .footer-cta {
@@ -503,7 +510,8 @@ export function injectGameStyles(): void {
       animation: pulse-cta 1.2s ease-in-out infinite;
       transition: transform 0.1s ease;
       margin-right: 1.5%;
-      margin-top: 6px;
+      margin-top: 4px;
+      flex-shrink: 0;
     }
 
     .footer-cta:active {

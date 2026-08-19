@@ -183,8 +183,12 @@ export class UIManager {
     // Bottom Purple Banner Footer with Yellow DOWNLOAD Button
     this.gameFooter = document.createElement('div');
     this.gameFooter.className = 'game-footer';
-    this.gameFooter.style.setProperty('--footer-portrait', `url(${ASSET_IMAGES.footerPortrait})`);
-    this.gameFooter.style.setProperty('--footer-landscape', `url(${ASSET_IMAGES.footerLandscape})`);
+
+    const footerImg = document.createElement('img');
+    footerImg.className = 'footer-graphic';
+    footerImg.src = ASSET_IMAGES.footerPortrait;
+    footerImg.alt = 'Playoff';
+    this.gameFooter.appendChild(footerImg);
 
     const footerCta = document.createElement('button');
     footerCta.className = 'footer-cta';

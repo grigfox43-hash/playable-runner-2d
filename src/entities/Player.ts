@@ -138,9 +138,9 @@ export class Player extends Container {
   }
 
   public getCollectHitbox(): Rectangle {
-    // Full body collection hitbox (head to toe, hands and hair)
-    const width = 85;
-    const height = 155;
+    // Ultra-generous collection hitbox extending well above head (+70px) and wide (+40px)
+    const width = 120;
+    const height = 210;
     return new Rectangle(
       this.x - width / 2,
       this.y - height,

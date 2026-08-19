@@ -71,9 +71,9 @@ export class Collectible extends Container {
   }
 
   public getHitbox(): Rectangle {
-    // Generous hitbox around the collectible so body contact registers immediately
-    const width = 80;
-    const height = 80;
+    // Generous magnetic collection area around the money (110x110)
+    const width = 110;
+    const height = 110;
     return new Rectangle(
       this.x - width / 2,
       this.y - height / 2,
