@@ -240,8 +240,7 @@ export class UIManager {
   }
 
   public triggerCollect(fromX: number, fromY: number, type: 'dollar' | 'paypalCard', newScore: number): void {
-    this.animateFlyingCollectible(fromX, fromY, type);
-    this.updateScore(newScore);
+    this.animateFlyingCollectible(fromX, fromY, type, newScore);
 
     this.collectiblesCount++;
     if (this.collectiblesCount % 3 === 0) {
@@ -249,7 +248,7 @@ export class UIManager {
     }
   }
 
-  private animateFlyingCollectible(startX: number, startY: number, type: 'dollar' | 'paypalCard'): void {
+  private animateFlyingCollectible(startX: number, startY: number, type: 'dollar' | 'paypalCard', newScore: number): void {
     const rect = this.scoreContainer.getBoundingClientRect();
     const targetX = rect.left + rect.width / 2;
     const targetY = rect.top + rect.height / 2;
@@ -263,7 +262,7 @@ export class UIManager {
     flyEl.style.left = '0px';
     flyEl.style.top = '0px';
     flyEl.style.transform = `translate3d(${startX}px, ${startY}px, 0) scale(1)`;
-    flyEl.style.transition = 'transform 0.38s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.38s ease';
+    flyEl.style.transition = 'transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s ease';
     this.uiContainer.appendChild(flyEl);
 
     requestAnimationFrame(() => {
@@ -272,9 +271,10 @@ export class UIManager {
     });
 
     setTimeout(() => {
+      this.updateScore(newScore);
       this.triggerScorePulse();
       flyEl.remove();
-    }, 380);
+    }, 350);
   }
 
   private pulseTimeout: number | null = null;

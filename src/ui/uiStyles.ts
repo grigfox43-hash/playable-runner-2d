@@ -92,12 +92,12 @@ export function injectGameStyles(): void {
     }
 
     .paypal-counter.pulse {
-      animation: counter-pulse 0.28s cubic-bezier(0.25, 1, 0.5, 1);
+      animation: counter-pulse 0.3s ease-out;
     }
 
     @keyframes counter-pulse {
       0% { transform: scale(var(--counter-base-scale, 1)); }
-      40% { transform: scale(calc(var(--counter-base-scale, 1) * 1.16)); }
+      50% { transform: scale(calc(var(--counter-base-scale, 1) * 1.25)); }
       100% { transform: scale(var(--counter-base-scale, 1)); }
     }
 
@@ -337,7 +337,7 @@ export function injectGameStyles(): void {
       left: 42%;
       right: 5%;
       text-align: center;
-      font-size: clamp(36px, 7.8vw, 56px);
+      font-size: clamp(40px, 8.6vw, 62px);
       font-weight: 900;
       color: #ffffff;
       -webkit-text-stroke: 3.5px #000000;
@@ -501,7 +501,7 @@ export function injectGameStyles(): void {
         bottom: 25%;
         left: 42%;
         right: 5%;
-        font-size: clamp(25px, 5.7vh, 37px);
+        font-size: clamp(28px, 6.3vh, 41px);
         -webkit-text-stroke: 2.8px #000000;
       }
       .countdown-container {
