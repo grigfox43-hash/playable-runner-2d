@@ -180,7 +180,7 @@ export function injectGameStyles(): void {
 
     .tutorial-hand {
       position: fixed;
-      bottom: -15vh;
+      bottom: 24vh;
       left: 50%;
       transform: translate(-50%);
       pointer-events: none !important;
@@ -197,6 +197,42 @@ export function injectGameStyles(): void {
     @keyframes pulse-hand {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.15); }
+    }
+
+    /* ========== FAIL OVERLAY (Red Circle Badge) ========== */
+    .fail-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 350;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .fail-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .fail-image {
+      width: min(50vw, 50vh);
+      max-width: 320px;
+      height: auto;
+      animation: fail-scale-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      filter: drop-shadow(0 8px 24px rgba(220, 38, 38, 0.6));
+    }
+
+    @keyframes fail-scale-in {
+      0% { transform: scale(0.3); opacity: 0; }
+      70% { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
     }
 
     /* ========== END / PACKSHOT OVERLAY ========== */

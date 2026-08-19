@@ -1,6 +1,6 @@
 import { Container, AnimatedSprite, Spritesheet, Assets, Rectangle } from 'pixi.js';
 import { ASSET_IMAGES, PLAYER_SPRITESHEET_DATA } from '../assets/assetData';
-import { PLAYER_CONFIG, PlayerAnimState, HITBOX_CONFIG, LAYER_Z_INDEX } from '../config/constants';
+import { PLAYER_CONFIG, PlayerAnimState, LAYER_Z_INDEX } from '../config/constants';
 import { SoundManager } from '../core/SoundManager';
 
 export class Player extends Container {
@@ -10,7 +10,6 @@ export class Player extends Container {
 
   public isJumping: boolean = false;
   private jumpProgress: number = 0;
-  private jumpStartTime: number = 0;
   private groundY: number = 1280 - PLAYER_CONFIG.GROUND_Y;
 
   private isInvincible: boolean = false;
@@ -38,7 +37,8 @@ export class Player extends Container {
 
     this.addChild(this.animatedSprite);
 
-    this.x = 720 * PLAYER_CONFIG.X_POSITION;
+    // Initial position: centered in intro
+    this.x = 720 * 0.48;
     this.y = this.groundY;
   }
 
@@ -73,7 +73,6 @@ export class Player extends Container {
 
     this.isJumping = true;
     this.jumpProgress = 0;
-    this.jumpStartTime = performance.now();
     this.playAnimation(PlayerAnimState.JUMP);
     SoundManager.getInstance().play('jump');
     return true;
@@ -84,6 +83,8 @@ export class Player extends Container {
 
     this.isInvincible = true;
     this.invincibilityTimer = PLAYER_CONFIG.INVINCIBILITY_TIME;
+    // Apply semi-transparent red damage overlay tint
+    this.animatedSprite.tint = 0xff3b3b;
     this.playAnimation(PlayerAnimState.HURT);
     SoundManager.getInstance().play('hurt');
   }
@@ -99,25 +100,25 @@ export class Player extends Container {
         this.y = this.groundY;
         this.playAnimation(PlayerAnimState.RUN);
       } else {
-        // Smooth parabolic jump trajectory
         const heightFactor = 4 * this.jumpProgress * (1 - this.jumpProgress);
         this.y = this.groundY - PLAYER_CONFIG.JUMP_HEIGHT * heightFactor;
       }
     }
 
-    // Invincibility blink update
+    // Invincibility blink update & red tint clearing
     if (this.isInvincible) {
       this.invincibilityTimer -= deltaMs;
       this.blinkTimer += deltaMs;
 
       if (this.blinkTimer > 60) {
         this.blinkTimer = 0;
-        this.animatedSprite.alpha = this.animatedSprite.alpha === 1 ? 0.3 : 1;
+        this.animatedSprite.alpha = this.animatedSprite.alpha === 1 ? 0.4 : 1;
       }
 
       if (this.invincibilityTimer <= 0) {
         this.isInvincible = false;
         this.animatedSprite.alpha = 1;
+        this.animatedSprite.tint = 0xffffff; // Reset tint
         if (!this.isJumping) {
           this.playAnimation(PlayerAnimState.RUN);
         }
@@ -126,15 +127,12 @@ export class Player extends Container {
   }
 
   public getHitbox(): Rectangle {
-    const bounds = this.animatedSprite.getBounds();
-    const width = bounds.width * HITBOX_CONFIG.PLAYER_SCALE.X;
-    const height = bounds.height * HITBOX_CONFIG.PLAYER_SCALE.Y;
-    const offsetX = (bounds.width - width) / 2 + bounds.width * HITBOX_CONFIG.PLAYER_OFFSET.X;
-    const offsetY = bounds.height - height + bounds.height * HITBOX_CONFIG.PLAYER_OFFSET.Y;
-
+    // Exact hitbox around the player's physical body
+    const width = 40;
+    const height = 85;
     return new Rectangle(
-      bounds.x + offsetX,
-      bounds.y + offsetY,
+      this.x - width / 2,
+      this.y - height,
       width,
       height
     );

@@ -1,6 +1,6 @@
 import { Container, AnimatedSprite, Spritesheet, Assets, Rectangle } from 'pixi.js';
 import { ASSET_IMAGES, ENEMY_SPRITESHEET_DATA } from '../assets/assetData';
-import { ENEMY_CONFIG, HITBOX_CONFIG, LAYER_Z_INDEX, PLAYER_CONFIG } from '../config/constants';
+import { ENEMY_CONFIG, LAYER_Z_INDEX, PLAYER_CONFIG } from '../config/constants';
 
 export class Enemy extends Container {
   private animatedSprite!: AnimatedSprite;
@@ -25,12 +25,22 @@ export class Enemy extends Container {
 
     this.animatedSprite = new AnimatedSprite(frames);
     this.animatedSprite.anchor.set(0.5, 1);
-    this.animatedSprite.scale.set(ENEMY_CONFIG.SCALE);
+    // Scale X is negative to flip enemy horizontally to face left towards the player
+    this.animatedSprite.scale.set(-ENEMY_CONFIG.SCALE, ENEMY_CONFIG.SCALE);
     this.animatedSprite.animationSpeed = ENEMY_CONFIG.ANIMATION_SPEED;
     this.animatedSprite.play();
 
     this.addChild(this.animatedSprite);
     this.y = this.groundY;
+  }
+
+  public playIdle(): void {
+    if (!this.spritesheet) return;
+    const idleFrames = this.spritesheet.animations.idle || this.spritesheet.animations.default;
+    if (idleFrames) {
+      this.animatedSprite.textures = idleFrames;
+      this.animatedSprite.gotoAndStop(0);
+    }
   }
 
   public update(deltaMs: number): void {
@@ -39,15 +49,12 @@ export class Enemy extends Container {
   }
 
   public getHitbox(): Rectangle {
-    const bounds = this.animatedSprite.getBounds();
-    const width = bounds.width * HITBOX_CONFIG.ENEMY_SCALE.X;
-    const height = bounds.height * HITBOX_CONFIG.ENEMY_SCALE.Y;
-    const offsetX = (bounds.width - width) / 2 + bounds.width * HITBOX_CONFIG.ENEMY_OFFSET.X;
-    const offsetY = bounds.height - height + bounds.height * HITBOX_CONFIG.ENEMY_OFFSET.Y;
-
+    // Exact hitbox around the enemy body
+    const width = 45;
+    const height = 95;
     return new Rectangle(
-      bounds.x + offsetX,
-      bounds.y + offsetY,
+      this.x - width / 2,
+      this.y - height,
       width,
       height
     );

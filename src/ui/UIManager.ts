@@ -15,6 +15,10 @@ export class UIManager {
   private tutorialOverlay!: HTMLDivElement;
   private tutorialText!: HTMLDivElement;
 
+  // Fail Overlay (Red Circle)
+  private failOverlay!: HTMLDivElement;
+
+  // End Screen / Packshot Overlay
   private endOverlay!: HTMLDivElement;
   private endTitle!: HTMLHeadingElement;
   private endSubtitle!: HTMLDivElement;
@@ -77,21 +81,33 @@ export class UIManager {
 
     this.tutorialText = document.createElement('div');
     this.tutorialText.className = 'tutorial-text';
-    this.tutorialText.textContent = 'SWIPE UP TO JUMP';
+    this.tutorialText.textContent = 'Tap to start earning!';
     this.tutorialOverlay.appendChild(this.tutorialText);
 
     const tutorialHand = document.createElement('div');
     tutorialHand.className = 'tutorial-hand';
     const handImg = document.createElement('img');
     handImg.src = ASSET_IMAGES.tutorialHandIcon;
-    handImg.alt = 'swipe';
+    handImg.alt = 'tap';
     handImg.className = 'hand-icon';
     tutorialHand.appendChild(handImg);
     this.tutorialOverlay.appendChild(tutorialHand);
 
     this.uiContainer.appendChild(this.tutorialOverlay);
 
-    // 3. End Screen / Packshot Overlay
+    // 3. Fail Overlay (Red Circle)
+    this.failOverlay = document.createElement('div');
+    this.failOverlay.className = 'fail-overlay';
+
+    const failImg = document.createElement('img');
+    failImg.src = ASSET_IMAGES.failBadge;
+    failImg.alt = 'FAIL';
+    failImg.className = 'fail-image';
+    this.failOverlay.appendChild(failImg);
+
+    this.uiContainer.appendChild(this.failOverlay);
+
+    // 4. End Screen / Packshot Overlay
     this.endOverlay = document.createElement('div');
     this.endOverlay.className = 'end-overlay';
 
@@ -163,7 +179,7 @@ export class UIManager {
     this.endOverlay.appendChild(endContent);
     this.uiContainer.appendChild(this.endOverlay);
 
-    // 4. Footer
+    // 5. Footer
     this.gameFooter = document.createElement('div');
     this.gameFooter.className = 'game-footer';
 
@@ -196,13 +212,21 @@ export class UIManager {
     this.renderHearts(hp);
   }
 
-  public showTutorial(prompt: string = 'SWIPE UP TO JUMP'): void {
+  public showTutorial(prompt: string = 'Tap to start earning!'): void {
     this.tutorialText.textContent = prompt;
     this.tutorialOverlay.classList.remove('hidden');
   }
 
   public hideTutorial(): void {
     this.tutorialOverlay.classList.add('hidden');
+  }
+
+  public showFailOverlay(): void {
+    this.failOverlay.classList.add('visible');
+  }
+
+  public hideFailOverlay(): void {
+    this.failOverlay.classList.remove('visible');
   }
 
   public triggerCollect(fromX: number, fromY: number, type: 'dollar' | 'paypalCard', newScore: number): void {
@@ -291,10 +315,7 @@ export class UIManager {
       this.endSubtitle.textContent = 'Try again on the app!';
     }
 
-    // Smooth count-up on PayPal card
     this.animateCardBalance(finalScore);
-
-    // Start Countdown 00:59
     this.startCountdown(59);
   }
 
@@ -309,7 +330,6 @@ export class UIManager {
     const step = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      // Ease out cubic
       const ease = 1 - Math.pow(1 - progress, 3);
       const val = target * ease;
 
@@ -346,10 +366,10 @@ export class UIManager {
   }
 
   public resize(windowWidth: number, windowHeight: number, scale: number, offsetX: number): void {
-    // Dynamic styles already adapt via clamp and flexbox
+    // Handled dynamically via CSS
   }
 
   public update(deltaMs: number): void {
-    // Handled via CSS keyframes
+    // Handled via CSS
   }
 }

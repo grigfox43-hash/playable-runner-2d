@@ -1,5 +1,5 @@
 import { Container, Application, Rectangle, Point } from 'pixi.js';
-import { GameState, PlayerAnimState, SPEED_CONFIG, HP_CONFIG, SCORE_CONFIG } from '../config/constants';
+import { GameState, PlayerAnimState, SPEED_CONFIG, HP_CONFIG, SCORE_CONFIG, PLAYER_CONFIG } from '../config/constants';
 import { LEVEL_TRACK_DATA, LevelItemConfig } from '../config/levelConfig';
 import { ParallaxBg } from '../background/ParallaxBg';
 import { Player } from '../entities/Player';
@@ -28,7 +28,7 @@ export class GameController {
   public adapter: MraidAdapter;
 
   public state: GameState = GameState.INTRO;
-  private currentSpeed: number = SPEED_CONFIG.BASE_SPEED;
+  private currentSpeed: number = 0; // Starts at 0 before first click
   private distanceTraveled: number = 0;
   private spawnIndex: number = 0;
   private currentHp: number = HP_CONFIG.MAX_HP;
@@ -69,15 +69,29 @@ export class GameController {
 
     this.entityContainer.addChild(this.player);
 
+    // Initial state: standing still in center
     this.state = GameState.INTRO;
-    this.player.playAnimation(PlayerAnimState.RUN);
+    this.currentSpeed = 0;
+    this.player.x = 720 * 0.48;
+    this.player.playAnimation(PlayerAnimState.IDLE);
+
     this.uiManager.setHp(this.currentHp);
     this.uiManager.updateScore(this.currentScore);
-    this.uiManager.showTutorial('TAP TO START');
+    this.uiManager.showTutorial('Tap to start earning!');
   }
 
   public handleJumpInput(): void {
     if (this.state === GameState.END_WIN || this.state === GameState.END_LOSE) return;
+
+    if (this.state === GameState.INTRO) {
+      this.state = GameState.RUNNING;
+      this.currentSpeed = SPEED_CONFIG.BASE_SPEED;
+      this.player.x = 720 * PLAYER_CONFIG.X_POSITION;
+      this.player.playAnimation(PlayerAnimState.RUN);
+      this.uiManager.hideTutorial();
+      SoundManager.getInstance().playMusic();
+      return;
+    }
 
     if (this.isTutorialPaused) {
       this.isTutorialPaused = false;
@@ -85,15 +99,15 @@ export class GameController {
       this.uiManager.hideTutorial();
     }
 
-    if (this.state === GameState.INTRO) {
-      this.state = GameState.RUNNING;
-      this.uiManager.hideTutorial();
-    }
-
     this.player.jump();
   }
 
   public update(deltaMs: number): void {
+    if (this.state === GameState.INTRO) {
+      this.player.update(deltaMs);
+      return;
+    }
+
     if (this.isTutorialPaused) {
       this.player.update(deltaMs);
       return;
@@ -160,7 +174,7 @@ export class GameController {
       this.finishLine.update(deltaMs, this.player.x);
     }
 
-    if (this.state === GameState.RUNNING || this.state === GameState.INTRO) {
+    if (this.state === GameState.RUNNING) {
       this.checkCollisions();
     }
 
@@ -315,11 +329,22 @@ export class GameController {
   private handleGameOver(): void {
     this.state = GameState.END_LOSE;
     this.currentSpeed = 0;
+
+    // Player and all enemies switch to Idle animation
+    this.player.playAnimation(PlayerAnimState.IDLE);
+    for (const enemy of this.enemies) {
+      enemy.playIdle();
+    }
+
+    // Show FAIL badge overlay
+    this.uiManager.showFailOverlay();
     SoundManager.getInstance().play('lose');
 
+    // After 2.0s transition to packshot end screen
     setTimeout(() => {
+      this.uiManager.hideFailOverlay();
       this.uiManager.showEndCard(false, this.currentScore);
-    }, 1000);
+    }, 2000);
   }
 
   private intersects(r1: Rectangle, r2: Rectangle): boolean {

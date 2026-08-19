@@ -1,6 +1,6 @@
 import { Container, Sprite, Assets, Rectangle } from 'pixi.js';
 import { ASSET_IMAGES } from '../assets/assetData';
-import { COLLECTIBLE_CONFIG, HITBOX_CONFIG, LAYER_Z_INDEX, PLAYER_CONFIG, SCORE_CONFIG } from '../config/constants';
+import { COLLECTIBLE_CONFIG, LAYER_Z_INDEX, PLAYER_CONFIG, SCORE_CONFIG } from '../config/constants';
 
 export class Collectible extends Container {
   private sprite!: Sprite;
@@ -53,23 +53,20 @@ export class Collectible extends Container {
 
   public update(deltaMs: number): boolean {
     if (this.isCollected) {
-      // Collection FX: float up, scale up, fade out
       this.collectingProgress += deltaMs / 300;
       this.y -= deltaMs * 0.8;
       this.sprite.scale.set(COLLECTIBLE_CONFIG.BASE_SCALE * (1 + this.collectingProgress * 0.5));
       this.sprite.alpha = Math.max(0, 1 - this.collectingProgress);
 
-      return this.collectingProgress >= 1; // return true when completely finished
+      return this.collectingProgress >= 1;
     }
 
     this.x -= (this.speed * deltaMs) / 1000;
     this.pulseTime += deltaMs * COLLECTIBLE_CONFIG.PULSE_SPEED;
     this.floatTime += deltaMs * COLLECTIBLE_CONFIG.FLOAT_SPEED;
 
-    // Bobbing float
     this.y = this.baseY + Math.sin(this.floatTime) * COLLECTIBLE_CONFIG.FLOAT_AMPLITUDE;
 
-    // Pulse scale
     const pulse = COLLECTIBLE_CONFIG.PULSE_MIN +
       (Math.sin(this.pulseTime) * 0.5 + 0.5) * (COLLECTIBLE_CONFIG.PULSE_MAX - COLLECTIBLE_CONFIG.PULSE_MIN);
     this.sprite.scale.set(COLLECTIBLE_CONFIG.BASE_SCALE * pulse);
@@ -78,12 +75,13 @@ export class Collectible extends Container {
   }
 
   public getHitbox(): Rectangle {
-    const radius = HITBOX_CONFIG.COLLECTIBLE_RADIUS;
+    // Tight and exact collision box directly over the bill/card
+    const size = 32;
     return new Rectangle(
-      this.x - radius,
-      this.y - radius,
-      radius * 2,
-      radius * 2
+      this.x - size / 2,
+      this.y - size / 2,
+      size,
+      size
     );
   }
 }
