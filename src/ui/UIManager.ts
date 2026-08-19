@@ -272,11 +272,24 @@ export class UIManager {
     });
 
     setTimeout(() => {
-      this.scoreContainer.classList.remove('pulse');
-      void this.scoreContainer.offsetWidth;
-      this.scoreContainer.classList.add('pulse');
+      this.triggerScorePulse();
       flyEl.remove();
     }, 380);
+  }
+
+  private pulseTimeout: number | null = null;
+  private triggerScorePulse(): void {
+    if (this.pulseTimeout) {
+      clearTimeout(this.pulseTimeout);
+    }
+    this.scoreContainer.classList.remove('pulse');
+    void this.scoreContainer.offsetWidth;
+    this.scoreContainer.classList.add('pulse');
+
+    this.pulseTimeout = window.setTimeout(() => {
+      this.scoreContainer.classList.remove('pulse');
+      this.pulseTimeout = null;
+    }, 280);
   }
 
   public showPraisePopup(): void {
