@@ -66,7 +66,8 @@ export function injectGameStyles(): void {
       display: inline-block;
       height: clamp(48px, 10vh, 64px);
       filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
-      transform-origin: center right;
+      transform-origin: top right;
+      transform: scale(var(--counter-base-scale, 1));
     }
 
     .paypal-counter-image {
@@ -95,9 +96,9 @@ export function injectGameStyles(): void {
     }
 
     @keyframes counter-pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.18); }
-      100% { transform: scale(1); }
+      0% { transform: scale(var(--counter-base-scale, 1)); }
+      50% { transform: scale(calc(var(--counter-base-scale, 1) * 1.16)); }
+      100% { transform: scale(var(--counter-base-scale, 1)); }
     }
 
     /* ========== FLYING COLLECTIBLE ========== */
@@ -336,13 +337,14 @@ export function injectGameStyles(): void {
       left: 42%;
       right: 5%;
       text-align: center;
-      font-size: clamp(42px, 7.2vw, 64px);
+      font-size: clamp(24px, 5.2vw, 38px);
       font-weight: 900;
       color: #ffffff;
-      -webkit-text-stroke: 4px #000000;
+      -webkit-text-stroke: 3px #000000;
       paint-order: stroke fill;
       filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
       letter-spacing: -0.5px;
+      white-space: nowrap;
     }
 
     /* Countdown Timer */
@@ -498,7 +500,9 @@ export function injectGameStyles(): void {
       .paypal-card-amount {
         bottom: 25%;
         left: 42%;
-        font-size: clamp(26px, 6.0vh, 44px);
+        right: 5%;
+        font-size: clamp(17px, 3.8vh, 25px);
+        -webkit-text-stroke: 2.2px #000000;
       }
       .countdown-container {
         margin: 2px 0 6px 0;

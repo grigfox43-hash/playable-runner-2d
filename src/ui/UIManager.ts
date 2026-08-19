@@ -353,18 +353,8 @@ export class UIManager {
       const progress = Math.min(elapsed / duration, 1);
       const ease = 1 - Math.pow(1 - progress, 3);
       const val = target * ease;
-      const text = `$${val.toFixed(2)}`;
 
-      this.endAmount.textContent = text;
-
-      // Rubber dynamic font scaling based on content length
-      if (text.length <= 5) {
-        this.endAmount.style.fontSize = '';
-      } else if (text.length <= 6) {
-        this.endAmount.style.fontSize = 'clamp(30px, 6.2vw, 54px)';
-      } else {
-        this.endAmount.style.fontSize = 'clamp(24px, 5.0vw, 44px)';
-      }
+      this.endAmount.textContent = `$${val.toFixed(2)}`;
 
       if (progress < 1) {
         this.balanceAnimationId = requestAnimationFrame(step);
