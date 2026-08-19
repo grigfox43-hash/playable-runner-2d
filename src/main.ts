@@ -22,23 +22,22 @@ async function bootstrap() {
   const gameController = new GameController(app);
   await gameController.init();
 
-  // Responsive Scaling & Centering
+  // Fullscreen Responsive Scaling & Centering
   const handleResize = () => {
-    const screenW = window.innerWidth;
-    const screenH = window.innerHeight;
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
 
-    const scaleX = screenW / GAME_CONFIG.DESIGN_WIDTH;
-    const scaleY = screenH / GAME_CONFIG.DESIGN_HEIGHT;
+    app.renderer.resize(windowWidth, windowHeight);
 
-    // Scale to fit while maintaining playable view
-    const scale = Math.min(scaleX, scaleY);
+    // Maintain 1280 height, expand horizontally
+    const scale = windowHeight / GAME_CONFIG.DESIGN_HEIGHT;
     gameController.worldContainer.scale.set(scale);
 
-    // Center horizontally and vertically
-    gameController.worldContainer.x = (screenW - GAME_CONFIG.DESIGN_WIDTH * scale) / 2;
-    gameController.worldContainer.y = (screenH - GAME_CONFIG.DESIGN_HEIGHT * scale) / 2;
+    const scaledDesignWidth = GAME_CONFIG.DESIGN_WIDTH * scale;
+    const offsetX = (windowWidth - scaledDesignWidth) / 2;
+    gameController.worldContainer.position.set(offsetX, 0);
 
-    gameController.uiManager.resize(GAME_CONFIG.DESIGN_WIDTH, GAME_CONFIG.DESIGN_HEIGHT);
+    gameController.uiManager.resize(windowWidth, windowHeight, scale, offsetX);
   };
 
   window.addEventListener('resize', handleResize);
@@ -47,7 +46,7 @@ async function bootstrap() {
   });
   handleResize();
 
-  // Input Handling (Swipe Up & Tap)
+  // Input Handling (Swipe Up, Tap, Click, Space, ArrowUp)
   let touchStartY = 0;
   let touchStartX = 0;
   let isPointerDown = false;
@@ -83,8 +82,8 @@ async function bootstrap() {
     const deltaY = endY - touchStartY;
     const deltaX = Math.abs(endX - touchStartX);
 
-    // Swipe up or simple tap / click triggers jump
-    if (deltaY < -20 || (Math.abs(deltaY) < 15 && deltaX < 15)) {
+    // Swipe up or tap/click anywhere jumps
+    if (deltaY < -20 || (Math.abs(deltaY) < 20 && deltaX < 20)) {
       gameController.handleJumpInput();
     }
   };
@@ -101,7 +100,7 @@ async function bootstrap() {
     }
   });
 
-  // Main Ticker
+  // Main Game Loop
   app.ticker.add((ticker) => {
     const deltaMs = ticker.deltaMS;
     gameController.update(deltaMs);
