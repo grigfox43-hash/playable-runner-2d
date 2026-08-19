@@ -140,7 +140,7 @@ export class GameController {
           this.currentSpeed = 0;
           this.player.playAnimation(PlayerAnimState.IDLE);
           enemy.playIdle();
-          this.uiManager.showTutorial('SWIPE UP TO JUMP');
+          this.uiManager.showTutorial('Jump to avoid enemies');
         }
       }
 

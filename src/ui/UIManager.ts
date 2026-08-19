@@ -285,14 +285,14 @@ export class UIManager {
     this.scoreDisplay.textContent = `$${floorAmount}`;
 
     if (floorAmount < 10) {
-      this.scoreDisplay.style.fontSize = 'clamp(20px, 3.5vw, 28px)';
+      this.scoreDisplay.style.fontSize = 'clamp(14px, 2.4vw, 19px)';
       this.scoreDisplay.style.left = '48%';
     } else if (floorAmount < 100) {
-      this.scoreDisplay.style.fontSize = 'clamp(15px, 2.6vw, 21px)';
-      this.scoreDisplay.style.left = '45%';
-    } else {
       this.scoreDisplay.style.fontSize = 'clamp(12px, 2.0vw, 16px)';
-      this.scoreDisplay.style.left = '42%';
+      this.scoreDisplay.style.left = '46%';
+    } else {
+      this.scoreDisplay.style.fontSize = 'clamp(10px, 1.6vw, 13px)';
+      this.scoreDisplay.style.left = '44%';
     }
   }
 

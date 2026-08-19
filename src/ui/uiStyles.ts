@@ -80,11 +80,11 @@ export function injectGameStyles(): void {
       position: absolute;
       top: 50%;
       left: 48%;
-      right: 6%;
+      right: 8%;
       transform: translateY(-50%);
       text-align: center;
       font-weight: 900;
-      font-size: clamp(20px, 3.5vw, 28px);
+      font-size: clamp(14px, 2.4vw, 19px);
       color: #003087;
       text-shadow: 0 1px 2px rgba(255,255,255,0.9);
       white-space: nowrap;
@@ -176,7 +176,7 @@ export function injectGameStyles(): void {
     /* Hand pointer sitting on the exact road level as player */
     .tutorial-hand {
       position: fixed;
-      top: 76vh;
+      top: 72vh;
       left: 50%;
       transform: translate(-50%, -50%);
       pointer-events: none !important;
@@ -189,7 +189,7 @@ export function injectGameStyles(): void {
     }
 
     .hand-icon {
-      width: 75px;
+      width: 84px;
       height: auto;
       pointer-events: none !important;
       animation: pulse-hand 1s ease-in-out infinite;
@@ -330,13 +330,15 @@ export function injectGameStyles(): void {
 
     .paypal-card-amount {
       position: absolute;
-      bottom: 22%;
+      bottom: 27%;
       left: 42%;
       right: 5%;
       text-align: center;
-      font-size: clamp(34px, 6vw, 54px);
+      font-size: clamp(40px, 7.2vw, 65px);
       font-weight: 900;
-      color: #000000;
+      color: #ffffff;
+      text-shadow: -2.5px -2.5px 0 #000, 2.5px -2.5px 0 #000, -2.5px 2.5px 0 #000, 2.5px 2.5px 0 #000, 0 3px 6px rgba(0,0,0,0.6);
+      -webkit-text-stroke: 1.5px #000;
       letter-spacing: -0.5px;
     }
 
@@ -419,9 +421,9 @@ export function injectGameStyles(): void {
         margin: 4px 0;
       }
       .paypal-card-amount {
-        bottom: 22%;
+        bottom: 27%;
         left: 42%;
-        font-size: clamp(24px, 5.2vh, 38px);
+        font-size: clamp(28px, 6.2vh, 46px);
       }
       .countdown-container {
         margin: 2px 0 6px 0;

@@ -7,8 +7,6 @@ export interface LevelItemConfig {
 }
 
 export const LEVEL_TRACK_DATA: LevelItemConfig[] = [
-  { type: 'collectible', distance: 1 },
-  { type: 'collectible', distance: 2 },
   { type: 'enemy', distance: 3, pauseForTutorial: true },
   { type: 'collectible', distance: 4, yOffset: 50 },
   { type: 'collectible', distance: 4.2, yOffset: 150 },
