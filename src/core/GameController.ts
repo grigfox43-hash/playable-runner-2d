@@ -68,6 +68,12 @@ export class GameController {
     await this.confettiEmitter.init();
     this.entityContainer.addChild(this.player);
 
+    // Preload finish line so it spawns instantly without loading stutter
+    this.finishLine = new FinishLine(999999);
+    await this.finishLine.init();
+    this.finishLine.visible = false;
+    this.entityContainer.addChild(this.finishLine);
+
     // Initial state: standing still on the far left
     this.state = GameState.INTRO;
     this.currentSpeed = 0;
@@ -183,7 +189,7 @@ export class GameController {
     }
 
     // Update finish line
-    if (this.finishLine) {
+    if (this.finishLine && this.finishLine.visible) {
       this.finishLine.speed = this.currentSpeed;
       this.finishLine.update(deltaMs);
     }
@@ -215,11 +221,12 @@ export class GameController {
   private checkLevelSpawns(): void {
     const scale = this.worldContainer.scale.x || 1;
     const rightEdgeInStage = (window.innerWidth - this.worldContainer.x) / scale;
-    const spawnScreenX = Math.max(720, rightEdgeInStage) + 200;
 
     while (this.spawnIndex < LEVEL_TRACK_DATA.length) {
       const item = LEVEL_TRACK_DATA[this.spawnIndex];
       const targetTravelDist = item.distance * this.UNIT_DISTANCE;
+      const extraMargin = item.type === 'finish' ? 650 : 200;
+      const spawnScreenX = Math.max(720, rightEdgeInStage) + extraMargin;
 
       if (this.distanceTraveled + spawnScreenX >= targetTravelDist) {
         const itemSpawnX = targetTravelDist - this.distanceTraveled;
@@ -269,13 +276,10 @@ export class GameController {
         break;
       }
       case 'finish': {
-        if (!this.finishLine) {
-          const fl = new FinishLine(spawnX);
-          this.finishLine = fl;
-          await fl.init();
-          fl.x = spawnX;
-          fl.speed = this.currentSpeed;
-          this.entityContainer.addChild(fl);
+        if (this.finishLine) {
+          this.finishLine.x = spawnX;
+          this.finishLine.speed = this.currentSpeed;
+          this.finishLine.visible = true;
         }
         break;
       }
@@ -374,7 +378,7 @@ export class GameController {
     }
 
     // 4. Finish Line
-    if (this.finishLine && this.finishLine.isInitialized && !this.finishLine.isTapeBroken) {
+    if (this.finishLine && this.finishLine.visible && this.finishLine.isInitialized && !this.finishLine.isTapeBroken) {
       if (this.player.x >= this.finishLine.tapeBreakX) {
         this.handleVictory();
       }
