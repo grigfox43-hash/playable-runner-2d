@@ -137,6 +137,19 @@ export class Player extends Container {
     );
   }
 
+  public resetToIdle(): void {
+    this.isInvincible = false;
+    this.invincibilityTimer = 0;
+    this.isJumping = false;
+    this.jumpProgress = 0;
+    this.y = this.groundY;
+    if (this.animatedSprite) {
+      this.animatedSprite.alpha = 1;
+      this.animatedSprite.tint = 0xffffff;
+    }
+    this.playAnimation(PlayerAnimState.IDLE);
+  }
+
   public getInvincible(): boolean {
     return this.isInvincible;
   }

@@ -28,6 +28,7 @@ export class UIManager {
   private paypalCardContainer!: HTMLDivElement;
   private countdownTimer!: HTMLDivElement;
   private countdownInterval: number | null = null;
+  private ctaBtn!: HTMLButtonElement;
 
   private adapter: MraidAdapter;
 
@@ -164,16 +165,16 @@ export class UIManager {
 
     endContent.appendChild(countdownBox);
 
-    // Red Pulsing CTA Button
-    const ctaBtn = document.createElement('button');
-    ctaBtn.className = 'cta-button';
-    ctaBtn.textContent = 'INSTALL AND EARN';
-    ctaBtn.addEventListener('click', (e) => {
+    // Red/Yellow Pulsing CTA Button
+    this.ctaBtn = document.createElement('button');
+    this.ctaBtn.className = 'cta-button';
+    this.ctaBtn.textContent = 'INSTALL AND EARN';
+    this.ctaBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       SoundManager.getInstance().play('win');
       this.adapter.openStore();
     });
-    endContent.appendChild(ctaBtn);
+    endContent.appendChild(this.ctaBtn);
 
     this.endOverlay.appendChild(endContent);
     this.uiContainer.appendChild(this.endOverlay);
@@ -236,30 +237,23 @@ export class UIManager {
     img.src = type === 'dollar' ? ASSET_IMAGES.flyingDollar : ASSET_IMAGES.flyingCard;
     flyEl.appendChild(img);
 
-    flyEl.style.left = `${startX}px`;
-    flyEl.style.top = `${startY}px`;
+    flyEl.style.left = '0px';
+    flyEl.style.top = '0px';
+    flyEl.style.transform = `translate3d(${startX}px, ${startY}px, 0) scale(1)`;
+    flyEl.style.transition = 'transform 0.38s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.38s ease';
+    this.uiContainer.appendChild(flyEl);
 
-    const animName = `fly-${Date.now()}-${Math.floor(Math.random()*1000)}`;
-    const styleEl = document.createElement('style');
-    styleEl.textContent = `
-      @keyframes ${animName} {
-        0% { left: ${startX}px; top: ${startY}px; opacity: 1; transform: scale(1); }
-        100% { left: ${targetX}px; top: ${targetY}px; opacity: 0.8; transform: scale(0.5); }
-      }
-    `;
-    document.head.appendChild(styleEl);
-
-    flyEl.style.animation = `${animName} 0.4s ease-in forwards`;
-    document.body.appendChild(flyEl);
-
-    flyEl.addEventListener('animationend', () => {
-      this.scoreContainer.classList.remove('pulse');
-      void this.scoreContainer.offsetWidth; // trigger reflow
-      this.scoreContainer.classList.add('pulse');
-
-      flyEl.remove();
-      styleEl.remove();
+    requestAnimationFrame(() => {
+      flyEl.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) scale(0.5)`;
+      flyEl.style.opacity = '0.7';
     });
+
+    setTimeout(() => {
+      this.scoreContainer.classList.remove('pulse');
+      void this.scoreContainer.offsetWidth;
+      this.scoreContainer.classList.add('pulse');
+      flyEl.remove();
+    }, 380);
   }
 
   public showPraisePopup(): void {
@@ -308,9 +302,11 @@ export class UIManager {
     if (isWin) {
       this.endTitle.textContent = 'Great job!';
       this.endSubtitle.textContent = 'Claim your cash on the app!';
+      this.ctaBtn.className = 'cta-button win';
     } else {
       this.endTitle.textContent = "You didn't make it!";
       this.endSubtitle.textContent = 'Try again on the app!';
+      this.ctaBtn.className = 'cta-button';
     }
 
     this.animateCardBalance(finalScore);

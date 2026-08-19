@@ -391,6 +391,19 @@ export function injectGameStyles(): void {
       50% { transform: scale(1.08); }
     }
 
+    /* CTA Button Win (Yellow / Orange 3D Pill) */
+    .cta-button.win {
+      background: linear-gradient(180deg, #ffc837 0%, #ff8008 100%);
+      color: #ffffff;
+      border: 3px solid #ffe082;
+      box-shadow: 0 6px 0 #c25e00, 0 10px 16px rgba(0,0,0,0.5);
+    }
+
+    .cta-button.win:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #c25e00, 0 4px 8px rgba(0,0,0,0.5);
+    }
+
     /* ========== LANDSCAPE RESPONSIVE FIX ========== */
     @media (orientation: landscape), (max-height: 600px) {
       .end-title {
@@ -424,6 +437,9 @@ export function injectGameStyles(): void {
         font-size: clamp(14px, 3.2vh, 18px);
         border-radius: 12px;
         box-shadow: 0 4px 0 #b32020, 0 6px 10px rgba(0,0,0,0.5);
+      }
+      .cta-button.win {
+        box-shadow: 0 4px 0 #c25e00, 0 6px 10px rgba(0,0,0,0.5);
       }
     }
   `;

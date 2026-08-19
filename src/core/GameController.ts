@@ -251,11 +251,12 @@ export class GameController {
       }
       case 'finish': {
         if (!this.finishLine) {
-          this.finishLine = new FinishLine();
-          await this.finishLine.init();
-          this.finishLine.x = spawnX;
-          this.finishLine.speed = this.currentSpeed;
-          this.entityContainer.addChild(this.finishLine);
+          const fl = new FinishLine(spawnX);
+          this.finishLine = fl;
+          await fl.init();
+          fl.x = spawnX;
+          fl.speed = this.currentSpeed;
+          this.entityContainer.addChild(fl);
         }
         break;
       }
@@ -354,7 +355,7 @@ export class GameController {
     }
 
     // 4. Finish Line
-    if (this.finishLine && !this.finishLine.isBroken) {
+    if (this.finishLine && this.finishLine.isInitialized && !this.finishLine.isBroken) {
       const dist = this.player.x - this.finishLine.x;
       if (dist >= -20) {
         this.handleVictory();
@@ -399,7 +400,7 @@ export class GameController {
     this.currentSpeed = 0;
 
     // Player and all enemies switch to Idle animation
-    this.player.playAnimation(PlayerAnimState.IDLE);
+    this.player.resetToIdle();
     for (const enemy of this.enemies) {
       enemy.playIdle();
     }

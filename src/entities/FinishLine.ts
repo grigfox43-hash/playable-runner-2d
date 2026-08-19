@@ -34,9 +34,12 @@ export class FinishLine extends Container {
   private readonly ROPE_Y_OFFSET = -160;
   private readonly NUM_SEGMENTS = 14;
 
-  constructor() {
+  public isInitialized: boolean = false;
+
+  constructor(initialX: number = 99999) {
     super();
     this.zIndex = LAYER_Z_INDEX.FINISH_LINE;
+    this.x = initialX;
   }
 
   public async init(): Promise<void> {
@@ -66,6 +69,7 @@ export class FinishLine extends Container {
     this.initIntactRope();
 
     this.y = 0;
+    this.isInitialized = true;
   }
 
   private initIntactRope(): void {
