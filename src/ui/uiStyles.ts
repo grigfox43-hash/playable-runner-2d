@@ -516,14 +516,14 @@ export function injectGameStyles(): void {
         transform: none;
       }
       .footer-cta {
-        padding: 4px 8px;
-        font-size: clamp(9px, 1.8vh, 11px);
-        border-radius: 7px;
-        border: 1.5px solid #ffe082;
-        box-shadow: 0 2px 0 #c25e00, 0 3px 5px rgba(0,0,0,0.3);
+        padding: 6px 18px;
+        font-size: clamp(12px, 2.8vh, 16px);
+        border-radius: 9px;
+        border: 2px solid #ffe082;
+        box-shadow: 0 3px 0 #c25e00, 0 4px 8px rgba(0,0,0,0.3);
         margin-right: 1.5%;
-        margin-top: -4px;
-        transform: translateY(-3px);
+        margin-top: 0;
+        transform: none;
       }
     }
   `;
