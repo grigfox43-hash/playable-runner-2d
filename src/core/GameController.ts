@@ -1,5 +1,5 @@
-import { Container, Application, Rectangle, Point } from 'pixi.js';
-import { GameState, PlayerAnimState, SPEED_CONFIG, HP_CONFIG, SCORE_CONFIG, PLAYER_CONFIG } from '../config/constants';
+import { Container, Application, Rectangle, TextStyle, Text, Graphics } from 'pixi.js';
+import { GameState, PlayerAnimState, SPEED_CONFIG, HP_CONFIG, SCORE_CONFIG, PLAYER_CONFIG, LAYER_Z_INDEX } from '../config/constants';
 import { LEVEL_TRACK_DATA, LevelItemConfig } from '../config/levelConfig';
 import { ParallaxBg } from '../background/ParallaxBg';
 import { Player } from '../entities/Player';
@@ -22,6 +22,7 @@ export class GameController {
   public enemies: Enemy[] = [];
   public obstacles: Obstacle[] = [];
   public collectibles: Collectible[] = [];
+  public warningLabels: Array<{ container: Container; gameX: number }> = [];
   public finishLine: FinishLine | null = null;
   public confettiEmitter: ConfettiEmitter;
   public uiManager: UIManager;
@@ -38,7 +39,6 @@ export class GameController {
   private tutorialTriggered: boolean = false;
   private isTutorialPaused: boolean = false;
 
-  private isDecelerating: boolean = false;
   private readonly UNIT_DISTANCE: number = 700;
   private readonly TUTORIAL_DISTANCE_TRIGGER: number = 280;
 
@@ -58,15 +58,12 @@ export class GameController {
     this.worldContainer.addChild(this.parallaxBg);
     this.worldContainer.addChild(this.entityContainer);
     this.worldContainer.addChild(this.confettiEmitter);
-
     this.app.stage.addChild(this.worldContainer);
   }
 
   public async init(): Promise<void> {
     await this.parallaxBg.init();
     await this.player.init();
-    await this.confettiEmitter.init();
-
     this.entityContainer.addChild(this.player);
 
     // Initial state: standing still on the far left
@@ -107,16 +104,16 @@ export class GameController {
       return;
     }
 
-    if (this.isTutorialPaused) {
-      this.player.update(deltaMs);
-      return;
-    }
-
     const moveStep = (this.currentSpeed * deltaMs) / 1000;
     this.distanceTraveled += moveStep;
 
-    this.checkLevelSpawns();
+    // Update parallax background
     this.parallaxBg.update(moveStep);
+
+    // Spawn new entities dynamically based on track
+    this.checkLevelSpawns();
+
+    // Update player
     this.player.update(deltaMs);
 
     // Update enemies
@@ -154,6 +151,9 @@ export class GameController {
       }
     }
 
+    // Update EVADE warning labels
+    this.updateWarningLabels(deltaMs);
+
     // Update collectibles
     for (let i = this.collectibles.length - 1; i >= 0; i--) {
       const col = this.collectibles[i];
@@ -175,15 +175,6 @@ export class GameController {
 
     if (this.state === GameState.RUNNING) {
       this.checkCollisions();
-    }
-
-    // Win deceleration
-    if (this.isDecelerating) {
-      this.currentSpeed *= 0.96;
-      if (this.currentSpeed < 10) {
-        this.currentSpeed = 0;
-        this.isDecelerating = false;
-      }
     }
 
     this.confettiEmitter.update(deltaMs);
@@ -229,6 +220,9 @@ export class GameController {
         obs.speed = this.currentSpeed;
         this.obstacles.push(obs);
         this.entityContainer.addChild(obs);
+
+        // Add yellow EVADE warning badge above the cone
+        this.createWarningLabel(spawnX, (1280 - PLAYER_CONFIG.GROUND_Y) - 110);
         break;
       }
       case 'collectible': {
@@ -254,40 +248,91 @@ export class GameController {
     }
   }
 
+  private createWarningLabel(x: number, y: number): void {
+    const container = new Container();
+    container.zIndex = LAYER_Z_INDEX.WARNING_LABEL;
+
+    const textStyle = new TextStyle({
+      fontFamily: 'Arial, sans-serif',
+      fontSize: 24,
+      fontWeight: '900',
+      fill: '#e60000',
+      stroke: { color: '#000000', width: 3.5 },
+      align: 'center'
+    });
+    const text = new Text({ text: 'EVADE', style: textStyle });
+    text.anchor.set(0.5, 0.5);
+
+    const padX = 14;
+    const padY = 5;
+    const bg = new Graphics();
+    bg.roundRect(-text.width / 2 - padX, -text.height / 2 - padY, text.width + padX * 2, text.height + padY * 2, 8);
+    bg.fill({ color: 0xffd500 });
+    bg.stroke({ color: 0xffffff, width: 2 });
+
+    container.addChild(bg);
+    container.addChild(text);
+
+    container.x = x;
+    container.y = y;
+
+    this.entityContainer.addChild(container);
+    this.warningLabels.push({ container, gameX: x });
+  }
+
+  private updateWarningLabels(deltaMs: number): void {
+    const move = (this.currentSpeed * deltaMs) / 1000;
+    for (let i = this.warningLabels.length - 1; i >= 0; i--) {
+      const item = this.warningLabels[i];
+      item.gameX -= move;
+      item.container.x = item.gameX;
+
+      const pulse = 1 + Math.sin(Date.now() * 0.008) * 0.08;
+      item.container.scale.set(pulse);
+
+      if (item.gameX < -400) {
+        this.entityContainer.removeChild(item.container);
+        item.container.destroy();
+        this.warningLabels.splice(i, 1);
+      }
+    }
+  }
+
   private checkCollisions(): void {
     const playerHitbox = this.player.getHitbox();
 
     // 1. Collectibles
-    for (const col of this.collectibles) {
+    for (let i = this.collectibles.length - 1; i >= 0; i--) {
+      const col = this.collectibles[i];
       if (!col.getCollected()) {
         const colHitbox = col.getHitbox();
         if (this.intersects(playerHitbox, colHitbox)) {
           const value = col.collect();
           this.currentScore += value;
 
-          const globalPos = col.toGlobal(new Point(0, 0));
-          this.uiManager.triggerCollect(globalPos.x, globalPos.y, col.itemType, this.currentScore);
-          SoundManager.getInstance().play('collect');
+          const screenPos = col.getGlobalPosition();
+          this.uiManager.triggerCollect(screenPos.x, screenPos.y, col.itemType, this.currentScore);
+          SoundManager.getInstance().play('coin');
         }
       }
     }
 
-    // 2. Enemies
+    // 2. Obstacles (Cones)
     if (!this.player.getInvincible()) {
-      for (const enemy of this.enemies) {
-        const enemyHitbox = enemy.getHitbox();
-        if (this.intersects(playerHitbox, enemyHitbox)) {
+      for (const obs of this.obstacles) {
+        const obsHitbox = obs.getHitbox();
+        if (this.intersects(playerHitbox, obsHitbox)) {
           this.handleDamage();
           break;
         }
       }
     }
 
-    // 3. Obstacles
+    // 3. Enemies
     if (!this.player.getInvincible()) {
-      for (const obs of this.obstacles) {
-        const obsHitbox = obs.getHitbox();
-        if (this.intersects(playerHitbox, obsHitbox)) {
+      for (const enemy of this.enemies) {
+        const enemyHitbox = enemy.getHitbox();
+        if (this.intersects(playerHitbox, enemyHitbox)) {
           this.handleDamage();
           break;
         }

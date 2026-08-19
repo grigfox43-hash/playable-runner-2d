@@ -14,6 +14,7 @@ export class UIManager {
 
   private tutorialOverlay!: HTMLDivElement;
   private tutorialText!: HTMLDivElement;
+  private tutorialHand!: HTMLDivElement;
 
   // Fail Overlay (Red Circle)
   private failOverlay!: HTMLDivElement;
@@ -82,17 +83,16 @@ export class UIManager {
     this.tutorialText.className = 'tutorial-text';
     this.tutorialText.textContent = 'Tap to start earning!';
     this.tutorialOverlay.appendChild(this.tutorialText);
+    this.uiContainer.appendChild(this.tutorialOverlay);
 
-    const tutorialHand = document.createElement('div');
-    tutorialHand.className = 'tutorial-hand';
+    this.tutorialHand = document.createElement('div');
+    this.tutorialHand.className = 'tutorial-hand';
     const handImg = document.createElement('img');
     handImg.src = ASSET_IMAGES.tutorialHandIcon;
     handImg.alt = 'tap';
     handImg.className = 'hand-icon';
-    tutorialHand.appendChild(handImg);
-    this.tutorialOverlay.appendChild(tutorialHand);
-
-    this.uiContainer.appendChild(this.tutorialOverlay);
+    this.tutorialHand.appendChild(handImg);
+    this.uiContainer.appendChild(this.tutorialHand);
 
     // 3. Fail Overlay (Red Circle)
     this.failOverlay = document.createElement('div');
@@ -199,10 +199,12 @@ export class UIManager {
   public showTutorial(prompt: string = 'Tap to start earning!'): void {
     this.tutorialText.textContent = prompt;
     this.tutorialOverlay.classList.remove('hidden');
+    this.tutorialHand.classList.remove('hidden');
   }
 
   public hideTutorial(): void {
     this.tutorialOverlay.classList.add('hidden');
+    this.tutorialHand.classList.add('hidden');
   }
 
   public showFailOverlay(): void {
