@@ -181,7 +181,7 @@ export function injectGameStyles(): void {
     .tutorial-hand {
       position: fixed;
       bottom: 24vh;
-      left: 52%;
+      left: 38%;
       transform: translate(-50%);
       pointer-events: none !important;
     }
@@ -328,11 +328,11 @@ export function injectGameStyles(): void {
 
     .paypal-card-amount {
       position: absolute;
-      bottom: 14%;
-      left: 36%;
-      right: 8%;
+      bottom: 18%;
+      left: 42%;
+      right: 5%;
       text-align: center;
-      font-size: clamp(26px, 4.5vw, 40px);
+      font-size: clamp(24px, 4.2vw, 38px);
       font-weight: 900;
       color: #000000;
       letter-spacing: -0.5px;
@@ -387,6 +387,42 @@ export function injectGameStyles(): void {
     @keyframes pulse-cta {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.08); }
+    }
+
+    /* ========== LANDSCAPE RESPONSIVE FIX ========== */
+    @media (orientation: landscape), (max-height: 600px) {
+      .end-title {
+        font-size: clamp(20px, 4.5vh, 28px);
+        margin: 0;
+      }
+      .end-subtitle {
+        font-size: clamp(12px, 3vh, 16px);
+        margin: 2px 0 6px 0;
+      }
+      .paypal-card-container {
+        width: min(44vh, 235px);
+        margin: 4px 0;
+      }
+      .paypal-card-amount {
+        bottom: 18%;
+        left: 42%;
+        font-size: clamp(18px, 3.8vh, 28px);
+      }
+      .countdown-container {
+        margin: 2px 0 6px 0;
+      }
+      .countdown-timer {
+        font-size: clamp(18px, 3.8vh, 24px);
+      }
+      .countdown-text {
+        font-size: clamp(10px, 2vh, 13px);
+      }
+      .cta-button {
+        padding: 8px 32px;
+        font-size: clamp(14px, 3.2vh, 18px);
+        border-radius: 12px;
+        box-shadow: 0 4px 0 #b32020, 0 6px 10px rgba(0,0,0,0.5);
+      }
     }
   `;
 

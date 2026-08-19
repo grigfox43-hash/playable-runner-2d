@@ -69,10 +69,10 @@ export class GameController {
 
     this.entityContainer.addChild(this.player);
 
-    // Initial state: standing still in center-left
+    // Initial state: standing still on the far left
     this.state = GameState.INTRO;
     this.currentSpeed = 0;
-    this.player.x = 720 * 0.38;
+    this.player.x = 720 * 0.13;
     this.player.playAnimation(PlayerAnimState.IDLE);
 
     this.uiManager.setHp(this.currentHp);
@@ -190,9 +190,12 @@ export class GameController {
   }
 
   private checkLevelSpawns(): void {
+    const scale = this.worldContainer.scale.x || 1;
+    const rightEdgeInStage = (window.innerWidth - this.worldContainer.x) / scale;
+    const spawnScreenX = Math.max(720, rightEdgeInStage) + 200;
+
     while (this.spawnIndex < LEVEL_TRACK_DATA.length) {
       const item = LEVEL_TRACK_DATA[this.spawnIndex];
-      const spawnScreenX = 720 + 300;
       const targetTravelDist = item.distance * this.UNIT_DISTANCE;
 
       if (this.distanceTraveled + spawnScreenX >= targetTravelDist) {
@@ -312,20 +315,22 @@ export class GameController {
 
   private handleVictory(): void {
     this.state = GameState.END_WIN;
+    this.currentSpeed = 0;
+
+    // Immediately switch player and all enemies to Idle before the packshot appears
+    this.player.playAnimation(PlayerAnimState.IDLE);
+    for (const enemy of this.enemies) {
+      enemy.playIdle();
+    }
+
     if (this.finishLine) {
       this.finishLine.breakTape(this.player.x);
     }
 
-    this.isDecelerating = true;
     this.confettiEmitter.burstVictory(720, 1280);
     SoundManager.getInstance().play('win');
 
     setTimeout(() => {
-      this.currentSpeed = 0;
-      this.player.playAnimation(PlayerAnimState.IDLE);
-      for (const enemy of this.enemies) {
-        enemy.playIdle();
-      }
       this.uiManager.showEndCard(true, this.currentScore);
     }, 1200);
   }
