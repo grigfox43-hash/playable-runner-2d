@@ -1,0 +1,140 @@
+export enum GameState {
+  LOADING = 'loading',
+  INTRO = 'intro',
+  RUNNING = 'running',
+  PAUSED = 'paused',
+  JUMPING = 'jumping',
+  HURT = 'hurt',
+  END_WIN = 'end_win',
+  END_LOSE = 'end_lose'
+}
+
+export enum PlayerAnimState {
+  IDLE = 'idle',
+  RUN = 'run',
+  JUMP = 'jump',
+  HURT = 'hurt'
+}
+
+export const GAME_CONFIG = {
+  BASE_WIDTH: 720,
+  BASE_HEIGHT: 1280,
+  DESIGN_WIDTH: 720,
+  DESIGN_HEIGHT: 1280,
+};
+
+export const PLAYER_CONFIG = {
+  X_POSITION: 0.18, // 18% of screen width
+  GROUND_Y: 280,
+  JUMP_HEIGHT: 300,
+  JUMP_DURATION: 800, // ms
+  INVINCIBILITY_TIME: 500, // ms
+  SCALE: 0.54,
+  ANIMATION_SPEED: 0.15
+};
+
+export const ENEMY_CONFIG = {
+  CHASE_SPEED: 300,
+  ANIMATION_SPEED: 0.2,
+  SCALE: 0.54 * 1.3
+};
+
+export const OBSTACLE_CONFIG = {
+  PULSE_SPEED: 0.003,
+  SCALE_MIN: 0.9,
+  SCALE_MAX: 1.1,
+  BASE_SCALE: 0.8
+};
+
+export const COLLECTIBLE_CONFIG = {
+  PULSE_SPEED: 0.0005,
+  PULSE_MIN: 0.95,
+  PULSE_MAX: 1.05,
+  BASE_SCALE: 0.15,
+  FLOAT_SPEED: 0.004,
+  FLOAT_AMPLITUDE: 8
+};
+
+export const FINISH_ROPE_CONFIG = {
+  ROPE_SEGMENTS: 10,
+  ROPE_LENGTH_FACTOR: 0.3,
+  GRAVITY: 0.3,
+  DAMPING: 0.95,
+  WAVE_SPEED: 0.01,
+  TIME_DECAY: 0.15,
+  MIN_VELOCITY_THRESHOLD: 0.1,
+  MIN_ANIMATION_TIME: 1,
+  ROPE_SEGMENT_DISTANCE: 10,
+  LEFT_ROPE_OFFSET_X: 0,
+  LEFT_ROPE_OFFSET_Y: 0,
+  RIGHT_ROPE_OFFSET_X: 20,
+  RIGHT_ROPE_OFFSET_Y: -20,
+  TAPE_BREAK_OFFSET: -300
+};
+
+export const SPEED_CONFIG = {
+  BASE_SPEED: 600,
+  PARALLAX: {
+    GROUND: 1,
+    NEAR: 0.7,
+    MID: 0.3,
+    FAR: 0.1
+  }
+};
+
+export const HITBOX_CONFIG = {
+  PLAYER_SCALE: { X: 0.25, Y: 0.7 },
+  PLAYER_OFFSET: { X: 0, Y: -0.15 },
+  ENEMY_SCALE: { X: 0.3, Y: 0.5 },
+  ENEMY_OFFSET: { X: 0, Y: 0.2 },
+  OBSTACLE_SHRINK: 10,
+  OBSTACLE_OFFSET: { X: 0, Y: 0 },
+  COLLECTIBLE_RADIUS: 60
+};
+
+export const LAYER_Z_INDEX = {
+  FAR_BACKGROUND: 0,
+  MID_BACKGROUND: 5,
+  NEAR_BACKGROUND: 8,
+  GROUND: 10,
+  COLLECTIBLES: 20,
+  OBSTACLES: 30,
+  FINISH_LINE: 35,
+  ENEMIES: 40,
+  WARNING_LABEL: 50,
+  PLAYER: 70,
+  OVERLAY: 85,
+  CONFETTI: 90
+};
+
+export const SCORE_CONFIG = {
+  DOLLAR_VALUE: 20,
+  PAYPAL_CARD_MIN: 5,
+  PAYPAL_CARD_MAX: 50,
+  START_BALANCE: 0
+};
+
+export const HP_CONFIG = {
+  MAX_HP: 3
+};
+
+export const CONFETTI_CONFIG = {
+  PARTICLE_COUNT: 50,
+  LIFETIME: 5000,
+  FADE_START: 0.7,
+  SCALE_MIN: 0.8,
+  SCALE_MAX: 1.5,
+  BURST_SPEED_MIN: 12,
+  BURST_SPEED_MAX: 20,
+  BURST_ANGLE_SPREAD: 30,
+  SIDE_MARGIN: 50,
+  SIDE_SPAWN_HEIGHT: 0.7,
+  SIDE_SPAWN_SPREAD_Y: 200,
+  SPAWN_SPREAD_X: 100,
+  SPAWN_SPREAD_Y: 50,
+  GRAVITY: 0.05,
+  AIR_RESISTANCE: 0.998,
+  WIND_X: 0,
+  ROTATION_SPEED_MIN: 0.02,
+  ROTATION_SPEED_MAX: 0.1
+};
