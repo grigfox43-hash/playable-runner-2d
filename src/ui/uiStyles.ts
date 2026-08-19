@@ -447,14 +447,14 @@ export function injectGameStyles(): void {
         box-shadow: 0 4px 0 #c25e00, 0 6px 10px rgba(0,0,0,0.5);
       }
       .game-footer {
-        height: clamp(51px, 12.6vh, 72px);
+        height: clamp(61px, 15.1vh, 86px);
         padding: 0 1.5% 0 0;
         overflow: visible;
       }
       .footer-graphic {
         height: 150%;
         max-width: 55vw;
-        transform: translateY(-14px);
+        transform: none;
       }
       .footer-cta {
         padding: 5px 14px;
@@ -463,7 +463,8 @@ export function injectGameStyles(): void {
         border: 1.5px solid #ffe082;
         box-shadow: 0 2px 0 #c25e00, 0 4px 6px rgba(0,0,0,0.3);
         margin-right: 1%;
-        margin-top: 0;
+        margin-top: -6px;
+        transform: translateY(-4px);
       }
     }
 
@@ -486,7 +487,7 @@ export function injectGameStyles(): void {
     }
 
     .footer-graphic {
-      height: 110%;
+      height: 100%;
       width: auto;
       max-width: 68vw;
       object-fit: contain;
@@ -494,7 +495,7 @@ export function injectGameStyles(): void {
       pointer-events: none;
       user-select: none;
       display: block;
-      transform: translateY(-8px);
+      transform: none;
     }
 
     .footer-cta {
@@ -513,7 +514,7 @@ export function injectGameStyles(): void {
       animation: pulse-cta 1.2s ease-in-out infinite;
       transition: transform 0.1s ease;
       margin-right: 1.5%;
-      margin-top: 4px;
+      margin-top: 2px;
       flex-shrink: 0;
     }
 
