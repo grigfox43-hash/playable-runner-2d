@@ -157,7 +157,7 @@ export function injectGameStyles(): void {
     /* ========== TUTORIAL OVERLAY ========== */
     .tutorial-overlay {
       position: absolute;
-      top: 50%;
+      top: 42%;
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
@@ -181,7 +181,7 @@ export function injectGameStyles(): void {
     .tutorial-hand {
       position: fixed;
       bottom: 24vh;
-      left: 50%;
+      left: 52%;
       transform: translate(-50%);
       pointer-events: none !important;
     }
@@ -328,11 +328,11 @@ export function injectGameStyles(): void {
 
     .paypal-card-amount {
       position: absolute;
-      bottom: 12%;
-      left: 0;
-      width: 100%;
+      bottom: 14%;
+      left: 36%;
+      right: 8%;
       text-align: center;
-      font-size: clamp(28px, 4.5vw, 42px);
+      font-size: clamp(26px, 4.5vw, 40px);
       font-weight: 900;
       color: #000000;
       letter-spacing: -0.5px;

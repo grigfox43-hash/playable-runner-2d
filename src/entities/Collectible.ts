@@ -53,12 +53,8 @@ export class Collectible extends Container {
 
   public update(deltaMs: number): boolean {
     if (this.isCollected) {
-      this.collectingProgress += deltaMs / 300;
-      this.y -= deltaMs * 0.8;
-      this.sprite.scale.set(COLLECTIBLE_CONFIG.BASE_SCALE * (1 + this.collectingProgress * 0.5));
-      this.sprite.alpha = Math.max(0, 1 - this.collectingProgress);
-
-      return this.collectingProgress >= 1;
+      this.visible = false;
+      return true;
     }
 
     this.x -= (this.speed * deltaMs) / 1000;

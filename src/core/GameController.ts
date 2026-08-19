@@ -69,10 +69,10 @@ export class GameController {
 
     this.entityContainer.addChild(this.player);
 
-    // Initial state: standing still in center
+    // Initial state: standing still in center-left
     this.state = GameState.INTRO;
     this.currentSpeed = 0;
-    this.player.x = 720 * 0.48;
+    this.player.x = 720 * 0.38;
     this.player.playAnimation(PlayerAnimState.IDLE);
 
     this.uiManager.setHp(this.currentHp);
@@ -321,6 +321,11 @@ export class GameController {
     SoundManager.getInstance().play('win');
 
     setTimeout(() => {
+      this.currentSpeed = 0;
+      this.player.playAnimation(PlayerAnimState.IDLE);
+      for (const enemy of this.enemies) {
+        enemy.playIdle();
+      }
       this.uiManager.showEndCard(true, this.currentScore);
     }, 1200);
   }
