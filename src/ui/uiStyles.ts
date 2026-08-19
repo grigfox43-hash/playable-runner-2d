@@ -446,14 +446,20 @@ export function injectGameStyles(): void {
       }
       .game-footer {
         background-image: var(--footer-landscape);
-        height: clamp(52px, 12vh, 74px);
-        background-size: 100% 100%;
-        background-position: center bottom;
+        background-color: #8542f1;
+        background-size: auto 100%;
+        background-repeat: no-repeat;
+        background-position: left bottom;
+        height: clamp(65px, 14.5vh, 92px);
+        border-top: 3px solid #ffffff;
       }
       .footer-cta {
-        padding: 7px 22px;
-        font-size: clamp(13px, 3vh, 17px);
-        margin-right: 2%;
+        padding: 5px 14px;
+        font-size: clamp(10px, 2.2vh, 13px);
+        border-radius: 8px;
+        border: 1.5px solid #ffe082;
+        box-shadow: 0 2px 0 #c25e00, 0 4px 6px rgba(0,0,0,0.3);
+        margin-right: 3%;
       }
     }
 
@@ -463,7 +469,7 @@ export function injectGameStyles(): void {
       bottom: 0;
       left: 0;
       width: 100%;
-      height: clamp(58px, 8.5vh, 80px);
+      height: clamp(68px, 9.5vh, 92px);
       background-image: var(--footer-portrait);
       background-size: 100% 100%;
       background-repeat: no-repeat;
@@ -480,24 +486,24 @@ export function injectGameStyles(): void {
     .footer-cta {
       background: linear-gradient(180deg, #ffc837 0%, #ff8008 100%);
       color: #ffffff;
-      border: 2.5px solid #ffe082;
-      border-radius: 12px;
-      padding: 9px 26px;
-      font-size: clamp(14px, 2.5vw, 19px);
+      border: 2px solid #ffe082;
+      border-radius: 9px;
+      padding: 6px 16px;
+      font-size: clamp(11px, 2.0vw, 14px);
       font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      box-shadow: 0 4px 0 #c25e00, 0 6px 12px rgba(0,0,0,0.35);
-      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      letter-spacing: 0.3px;
+      box-shadow: 0 3px 0 #c25e00, 0 4px 8px rgba(0,0,0,0.3);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
       cursor: pointer;
       animation: pulse-cta 1.2s ease-in-out infinite;
       transition: transform 0.1s ease;
-      margin-right: 1.5%;
+      margin-right: 2%;
     }
 
     .footer-cta:active {
-      transform: translateY(3px);
-      box-shadow: 0 1px 0 #c25e00, 0 3px 6px rgba(0,0,0,0.4);
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #c25e00, 0 2px 4px rgba(0,0,0,0.4);
     }
   `;
 
