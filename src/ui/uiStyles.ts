@@ -444,6 +444,56 @@ export function injectGameStyles(): void {
       .cta-button.win {
         box-shadow: 0 4px 0 #c25e00, 0 6px 10px rgba(0,0,0,0.5);
       }
+      .game-footer {
+        background-image: var(--footer-landscape);
+        height: clamp(45px, 12vh, 65px);
+      }
+      .footer-cta {
+        padding: 6px 20px;
+        font-size: clamp(12px, 3vh, 16px);
+      }
+    }
+
+    /* ========== BOTTOM GAME FOOTER BANNER ========== */
+    .game-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: clamp(55px, 8.5vh, 75px);
+      background-image: var(--footer-portrait);
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      background-position: bottom center;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 4%;
+      z-index: 100;
+      box-sizing: border-box;
+      pointer-events: auto;
+    }
+
+    .footer-cta {
+      background: linear-gradient(180deg, #ffc837 0%, #ff8008 100%);
+      color: #ffffff;
+      border: 2px solid #ffe082;
+      border-radius: 12px;
+      padding: 8px 24px;
+      font-size: clamp(14px, 2.5vw, 18px);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 0 #c25e00, 0 6px 10px rgba(0,0,0,0.4);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      cursor: pointer;
+      animation: pulse-cta 1.2s ease-in-out infinite;
+      transition: transform 0.1s ease;
+    }
+
+    .footer-cta:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #c25e00, 0 3px 6px rgba(0,0,0,0.4);
     }
   `;
 

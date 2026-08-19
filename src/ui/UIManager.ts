@@ -29,6 +29,7 @@ export class UIManager {
   private countdownTimer!: HTMLDivElement;
   private countdownInterval: number | null = null;
   private ctaBtn!: HTMLButtonElement;
+  private gameFooter!: HTMLDivElement;
 
   private adapter: MraidAdapter;
 
@@ -178,6 +179,23 @@ export class UIManager {
 
     this.endOverlay.appendChild(endContent);
     this.uiContainer.appendChild(this.endOverlay);
+
+    // Bottom Purple Banner Footer with Yellow DOWNLOAD Button
+    this.gameFooter = document.createElement('div');
+    this.gameFooter.className = 'game-footer';
+    this.gameFooter.style.setProperty('--footer-portrait', `url(${ASSET_IMAGES.footerPortrait})`);
+    this.gameFooter.style.setProperty('--footer-landscape', `url(${ASSET_IMAGES.footerLandscape})`);
+
+    const footerCta = document.createElement('button');
+    footerCta.className = 'footer-cta';
+    footerCta.textContent = 'DOWNLOAD';
+    footerCta.addEventListener('click', (e) => {
+      e.stopPropagation();
+      SoundManager.getInstance().play('win');
+      this.adapter.openStore();
+    });
+    this.gameFooter.appendChild(footerCta);
+    this.uiContainer.appendChild(this.gameFooter);
   }
 
   private renderHearts(hp: number): void {
@@ -297,6 +315,10 @@ export class UIManager {
   }
 
   public showEndCard(isWin: boolean, finalScore: number): void {
+    if (this.gameFooter) {
+      this.gameFooter.style.display = 'none';
+    }
+
     this.endOverlay.classList.add('visible');
 
     if (isWin) {

@@ -105,12 +105,31 @@ export class FinishLine extends Container {
     this.isInitialized = true;
   }
 
+  private flutterTime: number = 0;
+
   public get tapeBreakX(): number {
     return this.x + FINISH_ROPE_CONFIG.TAPE_BREAK_OFFSET;
   }
 
   public update(deltaMs: number): void {
     this.x -= (this.speed * deltaMs) / 1000;
+
+    // Flutter / wind sway wave animation on the finish ribbon
+    if (!this.isTapeBroken) {
+      this.flutterTime += deltaMs * 0.005;
+      const wave = Math.sin(this.flutterTime * 3) * 0.08;
+      const waveScale = Math.sin(this.flutterTime * 4) * 0.06;
+
+      if (this.leftTape) {
+        this.leftTape.rotation = 0.4 + wave;
+        this.leftTape.scale.y = 1 + waveScale;
+      }
+      if (this.rightTape) {
+        this.rightTape.rotation = -2.5 - wave * 1.2;
+        this.rightTape.scale.y = 1 - waveScale;
+      }
+    }
+
     if (this.isAnimating) {
       this.updateRopeAnimation();
     }
