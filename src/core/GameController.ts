@@ -183,7 +183,7 @@ export class GameController {
     // Update finish line
     if (this.finishLine) {
       this.finishLine.speed = this.currentSpeed;
-      this.finishLine.update(deltaMs, this.player.x);
+      this.finishLine.update(deltaMs);
     }
 
     if (this.state === GameState.RUNNING) {
@@ -355,9 +355,8 @@ export class GameController {
     }
 
     // 4. Finish Line
-    if (this.finishLine && this.finishLine.isInitialized && !this.finishLine.isBroken) {
-      const dist = this.player.x - this.finishLine.x;
-      if (dist >= -20) {
+    if (this.finishLine && this.finishLine.isInitialized && !this.finishLine.isTapeBroken) {
+      if (this.player.x >= this.finishLine.tapeBreakX) {
         this.handleVictory();
       }
     }
@@ -384,7 +383,7 @@ export class GameController {
     }
 
     if (this.finishLine) {
-      this.finishLine.breakTape(this.player.x);
+      this.finishLine.breakTape();
     }
 
     this.confettiEmitter.burstVictory(720, 1280);
