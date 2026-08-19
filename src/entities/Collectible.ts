@@ -72,8 +72,8 @@ export class Collectible extends Container {
 
   public getHitbox(): Rectangle {
     // Generous hitbox around the collectible so body contact registers immediately
-    const width = 65;
-    const height = 65;
+    const width = 80;
+    const height = 80;
     return new Rectangle(
       this.x - width / 2,
       this.y - height / 2,

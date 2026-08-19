@@ -448,11 +448,12 @@ export function injectGameStyles(): void {
       }
       .game-footer {
         background-image: var(--footer-landscape);
-        background-size: 100% 100%;
+        background-color: #8542f1;
+        background-size: auto 100%;
         background-repeat: no-repeat;
-        background-position: center bottom;
+        background-position: left bottom;
         height: clamp(52px, 12vh, 74px);
-        padding-right: 2%;
+        padding-right: 1.5%;
       }
       .footer-cta {
         padding: 5px 14px;

@@ -338,13 +338,14 @@ export class GameController {
 
   private checkCollisions(): void {
     const playerHitbox = this.player.getHitbox();
+    const collectHitbox = this.player.getCollectHitbox();
 
-    // 1. Collectibles
+    // 1. Collectibles (Full body collection)
     for (let i = this.collectibles.length - 1; i >= 0; i--) {
       const col = this.collectibles[i];
       if (!col.getCollected()) {
         const colHitbox = col.getHitbox();
-        if (this.intersects(playerHitbox, colHitbox)) {
+        if (this.intersects(collectHitbox, colHitbox)) {
           const value = col.collect();
           this.currentScore += value;
 

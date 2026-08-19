@@ -126,9 +126,21 @@ export class Player extends Container {
   }
 
   public getHitbox(): Rectangle {
-    // Exact hitbox covering the entire player body from head to feet
-    const width = 55;
-    const height = 115;
+    // Accurate obstacle hitbox
+    const width = 60;
+    const height = 125;
+    return new Rectangle(
+      this.x - width / 2,
+      this.y - height,
+      width,
+      height
+    );
+  }
+
+  public getCollectHitbox(): Rectangle {
+    // Full body collection hitbox (head to toe, hands and hair)
+    const width = 85;
+    const height = 155;
     return new Rectangle(
       this.x - width / 2,
       this.y - height,
