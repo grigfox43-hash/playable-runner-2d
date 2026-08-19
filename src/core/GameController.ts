@@ -86,7 +86,6 @@ export class GameController {
     if (this.state === GameState.INTRO) {
       this.state = GameState.RUNNING;
       this.currentSpeed = SPEED_CONFIG.BASE_SPEED;
-      this.player.x = 720 * PLAYER_CONFIG.X_POSITION;
       this.player.playAnimation(PlayerAnimState.RUN);
       this.uiManager.hideTutorial();
       SoundManager.getInstance().playMusic();

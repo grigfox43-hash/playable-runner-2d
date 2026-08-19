@@ -75,13 +75,14 @@ export class Collectible extends Container {
   }
 
   public getHitbox(): Rectangle {
-    // Tight and exact collision box directly over the bill/card
-    const size = 32;
+    // Generous hitbox around the collectible so body contact registers immediately
+    const width = 65;
+    const height = 65;
     return new Rectangle(
-      this.x - size / 2,
-      this.y - size / 2,
-      size,
-      size
+      this.x - width / 2,
+      this.y - height / 2,
+      width,
+      height
     );
   }
 }

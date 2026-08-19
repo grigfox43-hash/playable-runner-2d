@@ -1,33 +1,31 @@
 import { Container, Sprite, Texture, Assets } from 'pixi.js';
 import { ASSET_IMAGES } from '../assets/assetData';
-import { LAYER_Z_INDEX, PLAYER_CONFIG } from '../config/constants';
+import { LAYER_Z_INDEX, PLAYER_CONFIG, SPEED_CONFIG } from '../config/constants';
+
+interface PropItem {
+  sprite: Sprite;
+  type: 'tree' | 'lamp' | 'bush';
+  baseX: number;
+}
 
 export class ParallaxBg extends Container {
-  private bgTiles: Sprite[] = [];
+  private backgroundTiles: Sprite[] = [];
   private bgTexture!: Texture;
-  private roadTexture!: Texture;
-  private roadTiles: Sprite[] = [];
+  private bgScale: number = 1;
 
   private treeTextures: Texture[] = [];
   private lampTexture!: Texture;
   private bushTextures: Texture[] = [];
 
-  private treesPool: Sprite[] = [];
-  private lampsPool: Sprite[] = [];
-  private bushesPool: Sprite[] = [];
+  private treesPool: PropItem[] = [];
+  private lampsPool: PropItem[] = [];
+  private bushesPool: PropItem[] = [];
 
-  private bgScale: number = 1;
-  private roadScale: number = 1.2;
-  private groundY: number = 1280 - PLAYER_CONFIG.GROUND_Y;
-
+  private roadY: number = 1280 - PLAYER_CONFIG.GROUND_Y; // 1000
   private readonly LAMP_SPACING = 800;
-  private readonly TREE_MIN_SPACING = 450;
-  private readonly TREE_MAX_SPACING = 650;
-  private readonly BUSH_MIN_SPACING = 380;
-  private readonly BUSH_MAX_SPACING = 560;
-
-  private readonly LEFT_BOUND = -3500;
-  private readonly RIGHT_BOUND = 4500;
+  private readonly TREE_MIN_SPACING = 300;
+  private readonly TREE_MAX_SPACING = 500;
+  private readonly SCREEN_BUFFER = 1200;
 
   constructor() {
     super();
@@ -38,17 +36,15 @@ export class ParallaxBg extends Container {
   public async init(): Promise<void> {
     try {
       await this.loadTextures();
-      this.createSkyBackground();
-      this.createRoad();
-      this.createPropsPool();
+      this.createTiledBackground();
+      this.createPropPools();
     } catch (e) {
-      console.warn('Parallax init error:', e);
+      console.warn('ParallaxBg init error:', e);
     }
   }
 
   private async loadTextures(): Promise<void> {
     this.bgTexture = await Assets.load(ASSET_IMAGES.background);
-    this.roadTexture = await Assets.load(ASSET_IMAGES.road);
 
     if (ASSET_IMAGES.trees && ASSET_IMAGES.trees.length > 0) {
       for (const t of ASSET_IMAGES.trees) {
@@ -73,183 +69,137 @@ export class ParallaxBg extends Container {
     }
   }
 
-  private createSkyBackground(): void {
+  private createTiledBackground(): void {
     if (!this.bgTexture) return;
 
-    // Scale sky to cover height
-    this.bgScale = 1280 / this.bgTexture.height;
-    const tileWidth = this.bgTexture.width * this.bgScale;
+    const scaleX = 720 / this.bgTexture.width;
+    const scaleY = 1280 / this.bgTexture.height;
+    this.bgScale = Math.max(scaleX, scaleY);
 
-    // Span from LEFT_BOUND to RIGHT_BOUND (6-8 tiles)
-    const numTiles = Math.ceil((this.RIGHT_BOUND - this.LEFT_BOUND) / tileWidth) + 2;
+    const tileWidth = this.bgTexture.width * this.bgScale;
+    const offsetY = (1280 - this.bgTexture.height * this.bgScale) / 2;
+    const numTiles = 8;
+
     for (let i = 0; i < numTiles; i++) {
       const tile = new Sprite(this.bgTexture);
-      tile.anchor.set(0, 0);
-      tile.scale.set(this.bgScale);
-      tile.x = this.LEFT_BOUND + i * (tileWidth - 1);
-      tile.y = 0;
+      tile.y = offsetY;
       tile.zIndex = LAYER_Z_INDEX.FAR_BACKGROUND;
+      tile.anchor.set(0, 0);
+
+      // Alternating mirror for seamless horizon
+      if (i % 2 === 1) {
+        tile.scale.set(-this.bgScale, this.bgScale);
+        tile.x = (i + 1) * tileWidth - tileWidth * 2;
+      } else {
+        tile.scale.set(this.bgScale, this.bgScale);
+        tile.x = i * tileWidth - tileWidth * 2;
+      }
 
       this.addChild(tile);
-      this.bgTiles.push(tile);
+      this.backgroundTiles.push(tile);
     }
   }
 
-  private createRoad(): void {
-    if (!this.roadTexture) return;
+  private createPropPools(): void {
+    const totalSpan = 720 * 2 + this.SCREEN_BUFFER * 2;
 
-    this.roadScale = 1.4;
-    const tileWidth = this.roadTexture.width * this.roadScale;
-    const numTiles = Math.ceil((this.RIGHT_BOUND - this.LEFT_BOUND) / tileWidth) + 2;
-
-    for (let i = 0; i < numTiles; i++) {
-      const road = new Sprite(this.roadTexture);
-      road.anchor.set(0, 0);
-      road.scale.set(this.roadScale);
-      road.x = this.LEFT_BOUND + i * (tileWidth - 1);
-      road.y = this.groundY - 30;
-      road.zIndex = LAYER_Z_INDEX.GROUND;
-
-      this.addChild(road);
-      this.roadTiles.push(road);
-    }
-  }
-
-  private createPropsPool(): void {
-    const totalSpan = this.RIGHT_BOUND - this.LEFT_BOUND;
-
-    // Lamps
+    // 1. Lamps Pool
     if (this.lampTexture) {
-      const count = Math.ceil(totalSpan / this.LAMP_SPACING);
-      for (let i = 0; i < count; i++) {
+      const lampCount = Math.ceil(totalSpan / this.LAMP_SPACING) + 2;
+      for (let i = 0; i < lampCount; i++) {
         const lamp = new Sprite(this.lampTexture);
-        lamp.anchor.set(0.5, 1);
-        lamp.scale.set(0.85);
-        lamp.y = this.groundY - 15;
+        lamp.anchor.set(0.5, 0);
+        lamp.y = 50;
+        lamp.scale.set(1.8);
         lamp.zIndex = LAYER_Z_INDEX.NEAR_BACKGROUND;
-        lamp.x = this.LEFT_BOUND + i * this.LAMP_SPACING + 100;
+        const posX = i * this.LAMP_SPACING - this.SCREEN_BUFFER;
+        lamp.x = posX;
         this.addChild(lamp);
-        this.lampsPool.push(lamp);
+        this.lampsPool.push({ sprite: lamp, type: 'lamp', baseX: posX });
       }
     }
 
-    // Trees
+    // 2. Trees Pool
     if (this.treeTextures.length > 0) {
-      const count = Math.ceil(totalSpan / this.TREE_MIN_SPACING);
-      let currX = this.LEFT_BOUND + 50;
-      for (let i = 0; i < count; i++) {
-        const tex = this.treeTextures[i % this.treeTextures.length];
+      let currX = -this.SCREEN_BUFFER;
+      while (currX < totalSpan) {
+        const tex = this.treeTextures[Math.floor(Math.random() * this.treeTextures.length)];
         const tree = new Sprite(tex);
-        tree.anchor.set(0.5, 1);
-        const scale = 0.65 + (i % 3) * 0.08;
-        tree.scale.set(scale);
-        tree.y = this.groundY - 18;
+        tree.anchor.set(0.5, 0);
+        tree.y = 0;
+        tree.scale.set(1.81);
         tree.zIndex = LAYER_Z_INDEX.MID_BACKGROUND;
         tree.x = currX;
-        currX += this.TREE_MIN_SPACING + Math.random() * (this.TREE_MAX_SPACING - this.TREE_MIN_SPACING);
         this.addChild(tree);
-        this.treesPool.push(tree);
+        this.treesPool.push({ sprite: tree, type: 'tree', baseX: currX });
+        currX += this.TREE_MIN_SPACING + Math.random() * (this.TREE_MAX_SPACING - this.TREE_MIN_SPACING);
       }
     }
 
-    // Bushes
+    // 3. Bushes Pool
     if (this.bushTextures.length > 0) {
-      const count = Math.ceil(totalSpan / this.BUSH_MIN_SPACING);
-      let currX = this.LEFT_BOUND + 120;
-      for (let i = 0; i < count; i++) {
+      this.createBushGroups(totalSpan);
+    }
+  }
+
+  private createBushGroups(totalSpan: number): void {
+    let currX = -this.SCREEN_BUFFER + 100;
+    while (currX < totalSpan) {
+      const groupCount = Math.random() > 0.3 ? 3 : 2;
+      for (let i = 0; i < groupCount; i++) {
+        if (i > 0 && Math.random() < 0.2) continue;
         const tex = this.bushTextures[i % this.bushTextures.length];
         const bush = new Sprite(tex);
         bush.anchor.set(0.5, 1);
-        bush.scale.set(0.42 + (i % 2) * 0.06);
-        bush.y = this.groundY - 2;
+        bush.y = this.roadY - 305; // 695
+        bush.scale.set(0.45 + Math.random() * 0.15);
         bush.zIndex = LAYER_Z_INDEX.NEAR_BACKGROUND;
-        bush.x = currX;
-        currX += this.BUSH_MIN_SPACING + Math.random() * (this.BUSH_MAX_SPACING - this.BUSH_MIN_SPACING);
+        const posX = currX + i * (200 / 3) + Math.random() * 30;
+        bush.x = posX;
         this.addChild(bush);
-        this.bushesPool.push(bush);
+        this.bushesPool.push({ sprite: bush, type: 'bush', baseX: posX });
       }
+      currX += 500 + Math.random() * 100;
     }
   }
 
-  public update(deltaSpeed: number): void {
-    if (deltaSpeed === 0) return;
+  public update(moveStep: number): void {
+    if (moveStep === 0 || !this.bgTexture) return;
 
-    // 1. Scroll Sky (Far Layer)
-    if (this.bgTiles.length > 0 && this.bgTexture) {
-      const tileWidth = this.bgTexture.width * this.bgScale;
-      const bgScroll = deltaSpeed * 0.15;
+    const tileWidth = this.bgTexture.width * this.bgScale;
+    const totalBgWidth = tileWidth * this.backgroundTiles.length;
 
-      for (const tile of this.bgTiles) {
-        tile.x -= bgScroll;
-      }
-
-      for (const tile of this.bgTiles) {
-        if (tile.x < this.LEFT_BOUND - tileWidth) {
-          let maxX = -Infinity;
-          for (const other of this.bgTiles) {
-            if (other.x > maxX) maxX = other.x;
-          }
-          tile.x = maxX + tileWidth - 2;
-        }
+    // Scroll Background Tiles
+    for (const tile of this.backgroundTiles) {
+      tile.x -= moveStep;
+      const leftBound = tile.scale.x < 0 ? tile.x - tileWidth : tile.x;
+      if (leftBound < -tileWidth * 3) {
+        tile.x += totalBgWidth;
       }
     }
 
-    // 2. Scroll Road (Ground Layer)
-    if (this.roadTiles.length > 0 && this.roadTexture) {
-      const tileWidth = this.roadTexture.width * this.roadScale;
-      const roadScroll = deltaSpeed;
+    // Scroll Lamps
+    const lampTotalWidth = this.LAMP_SPACING * this.lampsPool.length;
+    this.updatePool(this.lampsPool, moveStep, lampTotalWidth);
 
-      for (const road of this.roadTiles) {
-        road.x -= roadScroll;
-      }
+    // Scroll Trees
+    const treeTotalWidth = this.treesPool.length > 0
+      ? this.treesPool[this.treesPool.length - 1].baseX - this.treesPool[0].baseX + this.TREE_MAX_SPACING
+      : 720 * 2;
+    this.updatePool(this.treesPool, moveStep, treeTotalWidth);
 
-      for (const road of this.roadTiles) {
-        if (road.x < this.LEFT_BOUND - tileWidth) {
-          let maxX = -Infinity;
-          for (const other of this.roadTiles) {
-            if (other.x > maxX) maxX = other.x;
-          }
-          road.x = maxX + tileWidth - 2;
-        }
-      }
-    }
+    // Scroll Bushes
+    const bushTotalWidth = this.bushesPool.length > 0
+      ? this.bushesPool[this.bushesPool.length - 1].baseX - this.bushesPool[0].baseX + 500
+      : 720 * 2;
+    this.updatePool(this.bushesPool, moveStep, bushTotalWidth);
+  }
 
-    // 3. Scroll Trees (Mid Layer)
-    const treeScroll = deltaSpeed * 0.45;
-    for (const tree of this.treesPool) {
-      tree.x -= treeScroll;
-      if (tree.x < this.LEFT_BOUND - 300) {
-        let maxX = -Infinity;
-        for (const other of this.treesPool) {
-          if (other.x > maxX) maxX = other.x;
-        }
-        tree.x = maxX + this.TREE_MIN_SPACING + Math.random() * 150;
-      }
-    }
-
-    // 4. Scroll Lamps (Near Layer)
-    const lampScroll = deltaSpeed * 0.85;
-    for (const lamp of this.lampsPool) {
-      lamp.x -= lampScroll;
-      if (lamp.x < this.LEFT_BOUND - 300) {
-        let maxX = -Infinity;
-        for (const other of this.lampsPool) {
-          if (other.x > maxX) maxX = other.x;
-        }
-        lamp.x = maxX + this.LAMP_SPACING;
-      }
-    }
-
-    // 5. Scroll Bushes (Near Layer)
-    const bushScroll = deltaSpeed * 0.95;
-    for (const bush of this.bushesPool) {
-      bush.x -= bushScroll;
-      if (bush.x < this.LEFT_BOUND - 200) {
-        let maxX = -Infinity;
-        for (const other of this.bushesPool) {
-          if (other.x > maxX) maxX = other.x;
-        }
-        bush.x = maxX + this.BUSH_MIN_SPACING + Math.random() * 100;
+  private updatePool(pool: PropItem[], moveStep: number, totalSpan: number): void {
+    for (const item of pool) {
+      item.sprite.x -= moveStep;
+      if (item.sprite.x < -this.SCREEN_BUFFER) {
+        item.sprite.x += totalSpan;
       }
     }
   }

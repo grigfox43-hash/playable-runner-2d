@@ -185,7 +185,7 @@ export class UIManager {
 
     const footerCta = document.createElement('button');
     footerCta.className = 'footer-cta';
-    footerCta.textContent = 'INSTALL AND EARN';
+    footerCta.textContent = 'DOWNLOAD';
     footerCta.addEventListener('click', (e) => {
       e.stopPropagation();
       this.adapter.openStore();

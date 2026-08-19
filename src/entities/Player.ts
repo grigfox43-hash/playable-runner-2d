@@ -83,7 +83,6 @@ export class Player extends Container {
 
     this.isInvincible = true;
     this.invincibilityTimer = PLAYER_CONFIG.INVINCIBILITY_TIME;
-    // Apply semi-transparent red damage overlay tint
     this.animatedSprite.tint = 0xff3b3b;
     this.playAnimation(PlayerAnimState.HURT);
     SoundManager.getInstance().play('hurt');
@@ -118,7 +117,7 @@ export class Player extends Container {
       if (this.invincibilityTimer <= 0) {
         this.isInvincible = false;
         this.animatedSprite.alpha = 1;
-        this.animatedSprite.tint = 0xffffff; // Reset tint
+        this.animatedSprite.tint = 0xffffff;
         if (!this.isJumping) {
           this.playAnimation(PlayerAnimState.RUN);
         }
@@ -127,9 +126,9 @@ export class Player extends Container {
   }
 
   public getHitbox(): Rectangle {
-    // Exact hitbox around the player's physical body
-    const width = 40;
-    const height = 85;
+    // Exact hitbox covering the entire player body from head to feet
+    const width = 55;
+    const height = 115;
     return new Rectangle(
       this.x - width / 2,
       this.y - height,

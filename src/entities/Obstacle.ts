@@ -1,6 +1,6 @@
 import { Container, Sprite, Assets, Rectangle } from 'pixi.js';
 import { ASSET_IMAGES } from '../assets/assetData';
-import { OBSTACLE_CONFIG, HITBOX_CONFIG, LAYER_Z_INDEX, PLAYER_CONFIG } from '../config/constants';
+import { OBSTACLE_CONFIG, LAYER_Z_INDEX, PLAYER_CONFIG } from '../config/constants';
 
 export class Obstacle extends Container {
   private sprite!: Sprite;
@@ -48,16 +48,14 @@ export class Obstacle extends Container {
   }
 
   public getHitbox(): Rectangle {
-    const bounds = this.sprite.getBounds();
-    const shrink = HITBOX_CONFIG.OBSTACLE_SHRINK;
-    const offsetX = bounds.width * HITBOX_CONFIG.OBSTACLE_OFFSET.X;
-    const offsetY = bounds.height * HITBOX_CONFIG.OBSTACLE_OFFSET.Y;
-
+    // Exact hitbox around the traffic cone obstacle in stage coordinates
+    const width = 50;
+    const height = 75;
     return new Rectangle(
-      bounds.x + shrink + offsetX,
-      bounds.y + shrink + offsetY,
-      Math.max(10, bounds.width - shrink * 2),
-      Math.max(10, bounds.height - shrink * 2)
+      this.x - width / 2,
+      this.y - height,
+      width,
+      height
     );
   }
 }

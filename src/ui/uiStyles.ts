@@ -389,14 +389,18 @@ export function injectGameStyles(): void {
       50% { transform: scale(1.08); }
     }
 
-    /* ========== FOOTER ========== */
+    /* ========== FOOTER (Authentic Playoff Banner) ========== */
     .game-footer {
       position: fixed;
       bottom: 0;
       left: 0;
+      right: 0;
       width: 100%;
       height: clamp(55px, 9vh, 85px);
-      background: var(--footer-landscape) center/cover no-repeat;
+      background-image: var(--footer-landscape);
+      background-size: 100% 100%;
+      background-position: center bottom;
+      background-repeat: no-repeat;
       display: flex;
       align-items: center;
       justify-content: flex-end;
@@ -406,23 +410,24 @@ export function injectGameStyles(): void {
 
     @media (orientation: portrait) {
       .game-footer {
-        background: var(--footer-portrait) center/cover no-repeat;
+        background-image: var(--footer-portrait);
       }
     }
 
     .footer-cta {
-      background: #22c55e;
+      background: linear-gradient(180deg, #ffc837 0%, #ff8008 100%);
       color: #ffffff;
-      border: 2px solid #86efac;
-      padding: 10px 24px;
-      border-radius: 24px;
-      font-size: 16px;
+      border: 2px solid #ffe082;
+      padding: 8px 24px;
+      border-radius: 12px;
+      font-size: clamp(14px, 2.5vw, 18px);
       font-weight: 900;
       cursor: pointer;
-      box-shadow: 0 3px 0 #15803d, 0 4px 8px rgba(0,0,0,0.3);
-      margin-right: 12px;
+      box-shadow: 0 4px 0 #c25e00, 0 6px 12px rgba(0,0,0,0.4);
+      margin-right: 10px;
       animation: pulse-cta 1.2s ease-in-out infinite;
       text-transform: uppercase;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
     }
   `;
 
