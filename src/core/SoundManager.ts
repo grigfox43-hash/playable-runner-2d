@@ -24,7 +24,8 @@ export class SoundManager {
       jump: { src: ASSET_SOUNDS.jump, volume: 0.5 },
       hit: { src: ASSET_SOUNDS.hit, volume: 0.6 },
       hurt: { src: ASSET_SOUNDS.hurt, volume: 0.7 },
-      collect: { src: ASSET_SOUNDS.collect, volume: 0.4 },
+      collect: { src: ASSET_SOUNDS.collect, volume: 0.6 },
+      coin: { src: ASSET_SOUNDS.collect, volume: 0.6 },
       step: { src: ASSET_SOUNDS.step, volume: 0.3 },
       win: { src: ASSET_SOUNDS.win, volume: 0.8 },
       lose: { src: ASSET_SOUNDS.lose, volume: 0.8 },
@@ -72,7 +73,10 @@ export class SoundManager {
   }
 
   public play(name: string): void {
-    const snd = this.sounds.get(name);
+    if (!this.isUnlocked && Howler.ctx && Howler.ctx.state === 'suspended') {
+      Howler.ctx.resume();
+    }
+    const snd = this.sounds.get(name) || (name === 'coin' ? this.sounds.get('collect') : (name === 'collect' ? this.sounds.get('coin') : undefined));
     if (!snd) return;
 
     if (name === 'music') {

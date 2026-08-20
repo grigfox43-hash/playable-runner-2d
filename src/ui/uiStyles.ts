@@ -502,8 +502,8 @@ export function injectGameStyles(): void {
         bottom: 25%;
         left: 42%;
         right: 5%;
-        font-size: clamp(28px, 6.3vh, 41px);
-        -webkit-text-stroke: 2.8px #000000;
+        font-size: clamp(24px, 5.35vh, 35px);
+        -webkit-text-stroke: 2.4px #000000;
       }
       .countdown-container {
         margin: 2px 0 6px 0;

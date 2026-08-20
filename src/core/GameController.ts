@@ -351,7 +351,7 @@ export class GameController {
 
           const screenPos = col.getGlobalPosition();
           this.uiManager.triggerCollect(screenPos.x, screenPos.y, col.itemType, this.currentScore);
-          SoundManager.getInstance().play('coin');
+          SoundManager.getInstance().play('collect');
         }
       }
     }
